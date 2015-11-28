@@ -1,8 +1,25 @@
 #include "reactor.h"
+#include <sys/epoll.h>
+#include <string.h>
+
+static event_handler* find_eh(reactor_core* rc, int fd, ssize_t* idx){
+	size_t i = 0;
+	event_handler* eh = 0;
+	for (i = 0; i <= rc->current_idx; i++) {
+		if (rc->ehs[i] && (rc->ehs[i]->fd == fd)) {
+			eh = rc->ehs[i];
+			if (idx)
+				*idx = i;
+			break;
+		}
+	}
 	
+	return eh;
+}
+
 static void add_eh(reactor* self, event_handler* eh){
      struct epoll_event ee;
-     memeset(&ee, 0, sizeof(ee));
+     memset(&ee, 0, sizeof(ee));
      ee.events = EPOLLIN;
      ee.data.fd = eh->fd;
      epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_ADD, eh->fd, &ee);
@@ -11,7 +28,7 @@ static void add_eh(reactor* self, event_handler* eh){
          if ((self->rc->current_idx == 0) && (self->rc->ehs[0] ==0))
 	      self->rc->ehs[0];
 	 else
-	      self->rc-ehs[++(self->rc->current_idx)] = ehs;
+	      self->rc->ehs[++(self->rc->current_idx)] = eh;
      }
 }
 
@@ -34,6 +51,22 @@ static void rm_eh(reactor* self, int fd) {
 	free(eh);
 }
 
+static void event_loop(reactor* self) {
+	int i = 0;
+	int epoll_fd = self->rc->epoll_fd;
+	struct epoll_event es[MAX_USERS];
+	event_handler* eh = 0;
+
+	for(;;) {
+		i = epoll_wait(epoll_fd, es, MAX_USERS, -1);
+		for(--i; i> -1; --i) {
+			eh = find_eh(self->rc, es[i].data.fd, 0);
+			if (eh)
+				eh->handle_event(eh, es[i].events);
+		}		
+	}
+}
+
 reactor* create_reactor(int epoll_fd) {
 	reactor* r = malloc(sizeof(reactor));
 	r->rc = malloc(sizeof(reactor_core));
@@ -45,8 +78,9 @@ reactor* create_reactor(int epoll_fd) {
 	return r;
 }
 
-void destroy_reactor(rector* r) {
+
+void destroy_reactor(reactor* r) {
 	free(r->rc);
 	free(r);
 }
-	
+

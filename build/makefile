@@ -1,12 +1,15 @@
-GCC=gcc
+GCC = gcc
+CFLAGS = -Wall 
 SOURCES = ../src/
 OUTPUT = ../bin/
-OBJS = server acceptor_eh
+OBJS = server reactor
 
 all: $(OBJS)
 
-server: $(SOURCES)server.c
+server: $(SOURCES)server.c 
 	$(GCC) `pkg-config --cflags libconfig` $< -o $(OUTPUT)$@  `pkg-config --libs libconfig`
 
-acceptor_eh: $(SOURCES)acceptor_eh.c
-	$(GCC) -I ../include $< -o $(OUTPUT)$@
+reactor.o: $(SOURCES)reactor.c
+	$(GCC) -w -c $(CFLAGS) $<  
+
+
