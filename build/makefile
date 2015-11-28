@@ -2,11 +2,11 @@ GCC = gcc
 CFLAGS = -Wall 
 SOURCES = ../src/
 OUTPUT = ../bin/
-OBJS = server reactor
+OBJS = main reactor
 
 all: $(OBJS)
 
-server: $(SOURCES)server.c 
+main: $(SOURCES)main.c 
 	$(GCC) `pkg-config --cflags libconfig` $< -o $(OUTPUT)$@  `pkg-config --libs libconfig`
 
 reactor.o: $(SOURCES)reactor.c
