@@ -5,7 +5,7 @@ void error(const char* msg, config_t* cfg) {
 	config_destroy(cfg);
 }
 
-int read_settings(const char *config_file_name, struct server_settings *serv_sett){
+int read_settings(const char *config_file_name, serv_sett *ss){
 	config_t cfg;
 	
 	/*Initialization*/
@@ -20,15 +20,15 @@ int read_settings(const char *config_file_name, struct server_settings *serv_set
 		printf("Read settings successfully\n");
 	}
 	
-	if(config_lookup_int(&cfg, "port", &serv_sett->port)){
-		printf("Port = %d\n", serv_sett->port);
+	if(config_lookup_int(&cfg, "port", &ss->port)){
+		printf("Port = %d\n", ss->port);
 	} else {
 		error("No 'port' setttings in configuration file\n", &cfg);
 		return -1;
 	}
 	
-	if(config_lookup_int(&cfg, "max_clients", &serv_sett->max_clients)){
-		printf("Max clients = %d\n", serv_sett->max_clients);
+	if(config_lookup_int(&cfg, "max_clients", &ss->max_clients)){
+		printf("Max clients = %d\n", ss->max_clients);
 	} else {
 		error("No 'max clients' setttings in configuration file\n", &cfg);
 		return -1;

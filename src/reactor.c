@@ -9,7 +9,8 @@
 typedef struct reactor_core{
 	int epoll_fd;
 	size_t current_idx;
-	event_handler* ehs[MAX_IDX];
+	int max_cli;
+	event_handler* ehs[max_cli];
 } reactor_core;
 
 static event_handler* find_eh(reactor_core* rc, int fd, size_t* idx)
@@ -18,13 +19,13 @@ static event_handler* find_eh(reactor_core* rc, int fd, size_t* idx)
 	event_handler* eh = 0;
 	for(i=0; i <= rc->current_idx; i++){
 		if(rc->ehs[i] && (rc->ehs[i]->fd == fd)){
-                    eh=rc->ehs[i];
-                    if(idx)
-                        *idx = i;
-                    break;
+        	eh=rc->ehs[i];
+            if(idx)
+            	*idx = i;
+                	break;
                 }
         }
-        return eh;
+	return eh;
 }
 
 static void add_eh(reactor* self, event_handler* eh)
@@ -87,7 +88,6 @@ reactor* create_reactor(int epoll_fd)
     r->add_eh = &add_eh;
     r->rm_eh = &rm_eh;
     r->event_loop = &event_loop;
-
 
     return r;
 }

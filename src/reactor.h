@@ -1,6 +1,7 @@
 #include "event_handler.h"
 
 typedef struct reactor_core reactor_core;
+typedef struct reactor reactor;
 
 typedef struct reactor{
 	void(*add_eh)(reactor* self, event_handler* eh);

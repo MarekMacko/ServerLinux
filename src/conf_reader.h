@@ -5,8 +5,8 @@
 typedef struct server_settings{
 	int port;
 	int max_clients;
-} server_sett;
+} serv_sett;
 
-int read_settings(const char *, struct server_settings *);
+int read_settings(const char*, serv_sett* );
 
 #endif
