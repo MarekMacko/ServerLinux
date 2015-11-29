@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<libconfig.h>
 
 typedef struct server_settings{
 	int port;
@@ -8,7 +9,7 @@ typedef struct server_settings{
 
 int read_settings(const char *config_file_name, struct server_settings *serv_sett){
 	config_t cfg;
-    config_setting_t *settings;
+   
   
     /*Initialization*/
     config_init(&cfg);

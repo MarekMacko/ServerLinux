@@ -1,15 +1,29 @@
-GCC = gcc
-CFLAGS = -Wall 
-SOURCES = ../src/
-OUTPUT = ../bin/
-OBJS = main reactor
+CC=gcc
+CFLAGS=-Wall -g
+LDFLAGS=
+SOURCES=../src/main.c\
+	../src/reactor.c\
+	../src/reader.c
+NAME=serwer
+LIB_NAME=libserwer.so
 
-all: $(OBJS)
+OBJECTS=$(SOURCES:.c=.o)
 
-main: $(SOURCES)main.c 
-	$(GCC) `pkg-config --cflags libconfig` $< -o $(OUTPUT)$@  `pkg-config --libs libconfig`
+all:$(NAME) $(LIB_NAME)
 
-reactor.o: $(SOURCES)reactor.c
-	$(GCC) -w -c $(CFLAGS) $<  
+%.o:%.c
+	$(CC) -c $(CFLAGS) $< -o $@
 
+$(LIB_NAME):$(OBJECTS)
+	$(CC) $(SOURCES) -shared -fPIC -o $(LIB_NAME)
 
+$(NAME):$(LIB_NAME)
+	$(CC) `pkg-config --cflags libconfig` $(OBJECTS) -I . -L . -l$(NAME) -o $(NAME) `pkg-config --libs libconfig`
+
+clean:
+	rm -f $(OBJECTS)
+	rm -f $(NAME)
+	rm -f $(LIB_NAME)
+
+clean-o:
+	rm -f $(OBJECTS)

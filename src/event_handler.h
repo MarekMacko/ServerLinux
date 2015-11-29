@@ -1,15 +1,16 @@
-//#define EPOLLERR 1
-//#define EPOLLIN 2
-//#define EPOLLOUT 3
+#ifndef EVENT_HANDLER_H
+#define EVENT_HANDLER_H
 
 #include <stdint.h>
+
+#define MAX_USERS 1000
 
 typedef struct reactor reactor;
 
 typedef struct event_handler{
-	int fd;
-	reactor *r;
-    void *ctg;
-    int (*get_handler)(struct event_handler *self);
-    void (*handle_event)(struct event_handler* self, uint32_t e);	
-} event_handler;
+    int fd;
+    reactor* r;
+    void (*handle_event)(struct event_handler* self, uint32_t e);
+}event_handler;
+
+#endif
