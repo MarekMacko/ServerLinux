@@ -3,7 +3,7 @@ CFLAGS=-Wall -g
 LDFLAGS=
 SOURCES=../src/main.c\
 	../src/reactor.c\
-	../src/reader.c
+	../src/conf_reader.c
 NAME=server
 LIB_NAME=libserver.so
 
