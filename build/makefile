@@ -4,8 +4,8 @@ LDFLAGS=
 SOURCES=../src/main.c\
 	../src/reactor.c\
 	../src/reader.c
-NAME=serwer
-LIB_NAME=libserwer.so
+NAME=server
+LIB_NAME=libserver.so
 
 OBJECTS=$(SOURCES:.c=.o)
 
