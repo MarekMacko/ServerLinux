@@ -1,11 +1,6 @@
-#include <stdio.h>
 #include "conf_reader.h"
 #include "reactor.h"
 #include "acceptor_eh.h"
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <netinet/in.h>
 
 int main(int argc, char **argv)
 {
@@ -28,8 +23,8 @@ int main(int argc, char **argv)
 		return -1;
 	}
 	
-	printf("epoll fd = %d\n",r->rc->epoll_fd);
-	printf("max cli = %d\n",r->rc->max_cli);
+	r->add_eh(r, serv_eh);
+	r->event_loop(r);
 
 	return 0;
 }

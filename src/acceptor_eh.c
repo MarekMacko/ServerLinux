@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "acceptor_eh.h"
 #include "reactor.h"
+#include "client_eh.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -17,17 +18,20 @@ static int get_handle(event_handler *self)
 }
 
 static void accept_cli(event_handler *self, uint32_t es)
-{
-/*	int fd = self->get_handle(self);
+{	
 	int c_fd = -1;
-	event_handler c_eh;
-
+	int fd = self->get_handle(self);
+	reactor* r = ((a_ctx*) self->ctx)->r;
+	event_handler* c_eh;
+	
 	struct sockaddr addr;
 	socklen_t addr_len = sizeof(addr);
 	if(es & EPOLLIN){
 		c_fd = accept(fd, &addr, &addr_len);
-		c_eh = construc_client_eh(     c_fd);
-	}*/
+		printf(" accept client with fd = %d", c_fd);
+		c_eh = construct_client_eh(c_fd, r);
+	 	r->add_eh(r, c_eh);	
+	}
 }
 
 event_handler* construct_acceptor(reactor* r, serv_sett* ss) 

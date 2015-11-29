@@ -5,14 +5,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-
-/*typedef struct reactor_core{
-	int epoll_fd;
-	size_t current_idx;
-	int max_cli;
-	event_handler** ehs;
-} reactor_core;
-*/
 static event_handler* find_eh(reactor_core* rc, int fd, size_t* idx)
 {
 	size_t i = 0;
@@ -37,17 +29,20 @@ static void add_eh(reactor* self, event_handler* eh)
     ee.data.fd = ((a_ctx*)eh->ctx)->fd;
     epoll_ctl(self->rc->epoll_fd,EPOLL_CTL_ADD, ((a_ctx*)eh->ctx)->fd, &ee);
 
-    if(self->rc->current_idx < self->rc->max_cli){
-        if((self->rc->current_idx == 0) && (self->rc->ehs[0] == 0))
+    if(self->rc->current_idx < self->rc->max_cli - 1) {
+        if((self->rc->current_idx == 0) && (self->rc->ehs[0] == 0)) {
             self->rc->ehs[0] = eh;
-        else
+       		printf(" Eh added to start\n");
+	    } else {
             self->rc->ehs[++(self->rc->current_idx)] = eh;
-    }
+    		printf(" Eh added to pos %d\n",(int)self->rc->current_idx);
+		}
+	}
 }
 
 static void rm_eh(reactor* self, int fd)
 {
-    size_t i=0;
+    size_t i = 0;
     event_handler* eh = find_eh(self->rc,fd, &i);
     if(!eh)
         return;
@@ -68,14 +63,16 @@ static void rm_eh(reactor* self, int fd)
 static void event_loop(reactor* self)
 {
     int i = 0;
-    int epoll_fd=self->rc->epoll_fd;
+    int epoll_fd = self->rc->epoll_fd;
     struct epoll_event es[self->rc->max_cli];
-    event_handler* eh=0;
-    while(1){
-        i=epoll_wait(epoll_fd,es,self->rc->max_cli,-1);  //czeka na event
-        for(--i;i>-1;--i){
-            if(eh)
-                eh->handle_events(eh,es[i].events);
+    event_handler* eh = 0;
+    
+	while(1) {
+        i = epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event    
+		for (--i; i >-1; --i) {
+            eh = find_eh(self->rc, es[i].data.fd, 0);
+			if (eh)
+                eh->handle_events(eh, es[i].events);
         }
     }
 }
