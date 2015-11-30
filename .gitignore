@@ -1,0 +1,3 @@
+# ignore object file
+*.o
+*.so
