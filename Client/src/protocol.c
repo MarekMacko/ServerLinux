@@ -5,13 +5,12 @@
 static struct message_key {
 	enum message_type id;
 	const char *str;
-} message_key[] = {
+} message_key[] = {		//polecenia nie mogą być dłuższe niż 20 znaków
 						{ ACK_NACK, "ack_nack" },
 						{ IF_LIST, "if_list" },
 						{ DEV_INFO, "get_info" },
 						{ SET_PORT, "set_ip" }
 };
-
 
 static int send_bytes(int fd, const char* msg, size_t len)
 {
@@ -36,20 +35,22 @@ return ACK_NACK;	//lub najlepiej jakiś error
 
 int send_ack_nack(int fd, bool is_error, const char* error_msg)
 {
-	char* msg = "1.0";
-	size_t len = 3;
+	char* msg = "0;0";
+	size_t len = 1;
 	if (is_error) {
 		len = strlen(error_msg) + 4;
 		msg = malloc((len + 1) * sizeof(char));
-		strcpy(msg, "1.1.");
+		strcpy(msg, "0;1;");
 		strcpy(msg+4, error_msg);
 	}
 
 	return send_bytes(fd, msg, len);
 }
 
-int send_serv_info(int fd)
+int send_message_to_server(int fd,const char* msg,size_t len)
 {
+
+	send_bytes(fd,msg,len);
 	return 0;
 }
 
@@ -100,24 +101,27 @@ struct message* receive_message(int fd)
 	m = malloc(sizeof(struct message));
 	m->msg_len=len;
 	switch (msg[0]) {
-		case '1':
+		case '0':
 			m->nr = ACK_NACK;
 			m->msg = 0;
 			break;
-		case '2':
+		case '1':
 			m->nr = IF_LIST;
+			m->msg_len = strlen(msg)-2;
 			m->msg = malloc((len-1) * sizeof(char));
 			strncpy(m->msg, msg+2, len-2);
 			m->msg[len-2] = 0;
 			break;
 		case '3':
 			m->nr = DEV_INFO;
+			m->msg_len = strlen(msg)-2;
 			m->msg = malloc((len-1) * sizeof(char));
 			strncpy(m->msg, msg+2, len-2);
 			m->msg[len-2] = 0;
 			break;
 		case '4':
 			m->nr = SET_PORT;
+			m->msg_len = strlen(msg)-2;
 			m->msg = malloc((len-1) * sizeof(char));
 			strncpy(m->msg, msg+2, len-2);
 			m->msg[len-2] = 0;

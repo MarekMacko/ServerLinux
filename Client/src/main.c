@@ -11,68 +11,113 @@
 #include "protocol.h"
 
 #define MAXLINE 4096
-#define SERV_PORT 3000
+#define PORT 3000
 
 int main(int argc, char **argv)
 {
     int sockfd;
     struct sockaddr_in servaddr;
-    char sendline[MAXLINE];//, recvline[MAXLINE];
+    char *sendline=malloc(sizeof(char)*MAXLINE);
 
     if((sockfd = socket(AF_INET, SOCK_STREAM,0))<0){
         perror("PROBLEM in creating the socket");
         return 2;
     }
-
     memset(&servaddr, 0, sizeof(servaddr));
+    if(argc>1)
+        {
+        strcpy(sendline,argv[1]);
+        strtok(argv[1],".");
+        if(strtok(0,".")!=NULL){
+            servaddr.sin_addr.s_addr = inet_addr(sendline);
+            if(argc==3){
+                servaddr.sin_port = htons(atoi(argv[2]));
+            }else{
+                servaddr.sin_port = htons(PORT);
+            }
+        }else
+        {
+            servaddr.sin_port = htons(atoi(argv[1]));
+            servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+        }
+    }else{
+        servaddr.sin_port = htons(PORT);
+        servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    }
+
+    //memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");//argv[1]
-    servaddr.sin_port = htons(SERV_PORT);
+    //servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");//argv[1]
+    
 
     if(connect(sockfd,(struct sockaddr *) &servaddr, sizeof(servaddr))<0){
         perror("Problem in create connect");
         return 3;
     }
-    //struct message m=0;
-    char *sendmsg=0;
-    char pch[MAXLINE];
-    int nw=0;
+
+    char *tmp_sendmsg=sendline;     //potrzebny wskaznik na początek sendline
+    char *sendmsg=malloc(sizeof(char)*MAXLINE);     //dokładna wiadomość dodaje nr uslugi
+    char *tmp_message=malloc(sizeof(char)*MAXLINE);     //wiadomość przygotowywana
+    char *message_type=malloc(sizeof(char)*20); //typ wiadomości
+
+    //char pch[MAXLINE];
+    //int nw=0;
     while(1){
-        scanf("%s",sendline);
-        strcpy(pch,sendline);
-        strtok(sendline," ");
-        switch (parse_message_key(sendline)){
-            case 0:                                      //ack_nack
-                printf("ACK_NACK\n" );
+        sendline=tmp_sendmsg;
+        memset(sendline,0,sizeof(*sendline)*MAXLINE);//czyszczenie buforu
+        fgets(sendline,MAXLINE,stdin);
+        sendline=strtok(sendline," ");
+        if(strlen(sendline)<20){
+            memset(message_type,0,sizeof(char)*20);
+            strcpy(message_type,sendline);
+        }else{
+            message_type=0;
+        }
+
+        //prepare message
+        memset(tmp_message,0,sizeof(char)*20);
+        sendline=strtok(0," ");
+        while(sendline != 0){
+            strcat(tmp_message,sendline);
+            strcat(tmp_message,";");
+            sendline=strtok(0," ");
+        }
+        //end prepare message
+        sendline=tmp_sendmsg;
+        memset(sendline,0,sizeof(char)*MAXLINE);
+        memset(sendmsg,0,sizeof(char)*MAXLINE);
+
+        switch (parse_message_key(message_type)){
+            case IF_LIST:                                      //lista interface
+                strcat(sendmsg,"1;");
+                strcat(sendmsg, tmp_message);
+                strncpy(sendline,sendmsg,strlen(sendmsg)-2);    //usuwa dwa ostatnie znaki czyli "/n;"
+                strcat(sendline,";");                           //dodaje średnik na końcu paczki
                 break;
-            case 1:                                      //lista interface
-                printf("if_list\n" );
-                //m->nr=IF_LIST;
-                sp_to_(pch);
-                printf("%s\n",pch );
-                
+            case DEV_INFO:                                      //informacje
+                strcat(sendmsg,"2;");
+                strcat(sendmsg, tmp_message);
+                strncpy(sendline,sendmsg,strlen(sendmsg)-2);
+                strcat(sendline,";");
                 break;
-            case 2:                                      //informacje
-                printf("devinfo\n" );
-                break;
-            case 3:                                      //setport
-                printf("Default\n" );
+            case SET_PORT:   
+                strcat(sendmsg,"3;");
+                strcat(sendmsg, tmp_message);
+                strncpy(sendline,sendmsg,strlen(sendmsg)-2);
+                strcat(sendline,";");                      //setport
                 break;
             default:
                 printf("Brak takiego polecenia\n");
+                sendline=0;
                 break;
         }
-        //strcat(sendline,";");
-        //printf("%s", sendline);
+        if(sendline!=0)
+        send_message_to_server(sockfd,sendline,strlen(sendline));
+        //receive_message(sockfd);
         
-        //printf("Send msg %s\n", sendmsg);
-        write(sockfd,sendline,strlen(sendline));
-        //m=receive_message(sockfd);
-
-        //printf("%s", "String odczytany z serwera: ");
-        //fputs(m->msg,stdout);
     }
-
+    free(sendline);
+    free(sendmsg);
     return 0;
 
 }

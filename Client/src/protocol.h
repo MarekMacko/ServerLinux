@@ -19,7 +19,7 @@ struct message {
 };
 
 int send_ack_nack(int fd, bool is_error, const char* error_msg);
-int send_serv_info(int fd);
+int send_message_to_server(int fd,const char* msg,size_t len);
 int send_dev_info(int fd);
 struct message* receive_message(int fd);
 void delete_message(struct message* m);
