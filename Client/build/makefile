@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall -g
 LDFLAGS=
 SOURCES=../src/main.c\
-	../src/protocol.c
+	../../src/protocol.c
 	
 NAME=client
 LIB_NAME=libclient.so

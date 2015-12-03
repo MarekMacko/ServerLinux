@@ -8,7 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "protocol.h"
+#include "../../src/protocol.h"
 
 #define MAXLINE 4096
 #define PORT 3000
