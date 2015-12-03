@@ -1,21 +1,34 @@
 #include "client_eh.h"
 #include "acceptor_eh.h"
+#include "protocol.h"
 #include <sys/epoll.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 static void serve_client(event_handler* self, uint32_t events)
 {
-//	size_t len = 0;
-	int size = 10;
-	char buff[size];
-	int fd = ((a_ctx*) self->ctx)->fd; 
+	struct message *msg=malloc(sizeof(struct message));
+	int fd = ((a_ctx*) self->ctx)->fd;
 	if (events & EPOLLIN) {
-		if (read(fd, &buff, size) > 0)
-			printf("Readed data: %s\n", buff);
+		msg=receive_message(fd);
+		printf("%s\n",msg->msg);
 	} else {
 //		perror("No events\n");
 	}
+	switch(msg->nr){
+		case IF_LIST:
+			printf("Lista interface obsluga\n");
+			break;
+		case DEV_INFO:
+			printf("Device info obsluga\n");
+			break;
+		case SET_PORT:
+			printf("Porty\n");
+			break;
+		default:
+			printf("Jakis error albo cos\n");
+	}
+	free(msg);
 }
 
 event_handler* construct_client_eh(int fd, reactor *r)

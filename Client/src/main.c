@@ -67,6 +67,8 @@ int main(int argc, char **argv)
         memset(sendline,0,sizeof(*sendline)*MAXLINE);//czyszczenie buforu
         fgets(sendline,MAXLINE,stdin);
         sendline=strtok(sendline," ");
+
+        //if długość polecenia jest mniejsza niż 20 znaków
         if(strlen(sendline)<20){
             memset(message_type,0,sizeof(char)*20);
             strcpy(message_type,sendline);
@@ -118,11 +120,9 @@ int main(int argc, char **argv)
     }
     free(sendline);
     free(sendmsg);
+    free(tmp_message);
+    free(message_type);
+    close(sockfd);
     return 0;
 
 }
-
-
-
-
-    
