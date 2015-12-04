@@ -1,6 +1,7 @@
 #include "client_eh.h"
 #include "acceptor_eh.h"
 #include "protocol.h"
+#include "port_configurator.h"
 #include <sys/epoll.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,9 +21,12 @@ static void serve_client(event_handler* self, uint32_t events)
 			printf("Lista interface obsluga\n");
 			break;
 		case DEV_INFO:
+			get_if_info("eth1");
 			printf("Device info obsluga\n");
 			break;
 		case SET_PORT:
+			if(set_ip("eth0","192.10.0.1","255.255.0.0"))	//wymagane odpalenie serwera z sudo
+				printf("byl error ..\n");
 			printf("Porty\n");
 			break;
 		default:

@@ -6,7 +6,8 @@ SOURCES=../src/main.c\
 	../src/conf_reader.c\
 	../src/acceptor_eh.c\
 	../src/client_eh.c\
-	../src/protocol.c
+	../src/protocol.c\
+	../src/port_configurator.c
 NAME=server
 LIB_NAME=libserver.so
 

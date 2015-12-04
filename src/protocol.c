@@ -114,10 +114,10 @@ struct message* receive_message(int fd)
 			break;
 		case '2':
 			m->nr = DEV_INFO;
-			m->msg_len = strlen(msg)-1;
+			m->msg_len = strlen(msg)-2;
 			m->msg = malloc((len-1) * sizeof(char));
 			strncpy(m->msg, msg+2, len-2);
-			m->msg[len-1] = 0;
+			m->msg[len-2] = 0;
 			break;
 		case '3':
 			m->nr = SET_PORT;

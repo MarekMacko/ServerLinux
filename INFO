@@ -1,0 +1,9 @@
+Dodałem ustawianie ip and mask
+Znalazłem pobieranie info o danym interface, ale niekompletne->więcej na face
+
+Do zrobienia:
+	Odłączanie się klientów
+	Parsowanie message by dzielił na potrzebne parametry
+	Ustawianie mac'a
+
+Uwaga by serwer zmieniał ip Ci na interface trzeba odpalać sudo ./server

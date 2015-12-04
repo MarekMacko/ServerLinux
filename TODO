@@ -1,9 +1,0 @@
-Zrobione
-	conf_reader - Twój plik do czytania configa, trzeba pomyśleć jak go teraz podpiąć bo zmienne reaktora korzystają ze stałych.
-	main.c - ustawiony na odczyt configu tylko
-	reactor.h, event_gandler.h - przepisane
-Do zrobienia
-	konstrukcja reaktora w main
-	napisać akceptora, który by z tym działał wszystkim
-	napisać klienta jakiegoś prostego, czyli połowe tego gotowego wyżucić
-	i później jeszcze lista się rozwinie, aktualnie trzeba zrobić stawianie serwera by działało jakiekolwiek połączenie
