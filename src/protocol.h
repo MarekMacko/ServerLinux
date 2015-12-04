@@ -7,7 +7,8 @@ enum message_type {
 	ACK_NACK,	//wiadomość potwierdzająca
 	IF_LIST,	//pobieranie listy interface
 	DEV_INFO,	//pobieranie ustawien interface
-	SET_PORT	//ustawianie ip maski i macu na porcie
+	SET_PORT,	//ustawianie ip maski i macu na porcie
+	SET_MAC
 };
 
 
@@ -24,6 +25,5 @@ int send_dev_info(int fd);
 struct message* receive_message(int fd);
 void delete_message(struct message* m);
 int parse_message_key(const char *str);
-void sp_to_(char *str);
 
 #endif

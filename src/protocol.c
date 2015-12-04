@@ -9,7 +9,8 @@ static struct message_key {
 						{ ACK_NACK, "ack_nack" },
 						{ IF_LIST, "if_list" },
 						{ DEV_INFO, "get_info" },
-						{ SET_PORT, "set_ip" }
+						{ SET_PORT, "set_ip" },
+						{ SET_MAC, "set_mac" }
 };
 
 static int send_bytes(int fd, const char* msg, size_t len)
@@ -99,29 +100,36 @@ struct message* receive_message(int fd)
 	}
 
 	m = malloc(sizeof(struct message));
-	m->msg_len=len;
+	m->msg_len=strlen(msg)-2;
 	switch (msg[0]) {
 		case '0':
 			m->nr = ACK_NACK;
-			m->msg = 0;
+			if(m->msg_len>0){
+				m->msg = malloc((len-1) * sizeof(char));
+				strncpy(m->msg, msg+2, len-2);
+				m->msg[len-2] = 0;
+			}else m->msg = 0;
 			break;
 		case '1':
 			m->nr = IF_LIST;
-			m->msg_len = strlen(msg)-2;
 			m->msg = malloc((len-1) * sizeof(char));
 			strncpy(m->msg, msg+2, len-2);
 			m->msg[len-2] = 0;
 			break;
 		case '2':
 			m->nr = DEV_INFO;
-			m->msg_len = strlen(msg)-2;
 			m->msg = malloc((len-1) * sizeof(char));
 			strncpy(m->msg, msg+2, len-2);
 			m->msg[len-2] = 0;
 			break;
 		case '3':
 			m->nr = SET_PORT;
-			m->msg_len = strlen(msg)-2;
+			m->msg = malloc((len-1) * sizeof(char));
+			strncpy(m->msg, msg+2, len-2);
+			m->msg[len-2] = 0;
+			break;
+		case '4':
+			m->nr = SET_MAC;
 			m->msg = malloc((len-1) * sizeof(char));
 			strncpy(m->msg, msg+2, len-2);
 			m->msg[len-2] = 0;
@@ -141,13 +149,5 @@ void delete_message(struct message* m)
 		free(m->msg);
 	free(m);
 }
-void sp_to_(char *str)
-{
-  while(*str) {
-    if(*str== ' ') 
-        *str=';';
-    else
-    	str++;
-  }
-}
+
 

@@ -21,13 +21,16 @@ static void serve_client(event_handler* self, uint32_t events)
 			printf("Lista interface obsluga\n");
 			break;
 		case DEV_INFO:
-			get_if_info("eth1");
-			printf("Device info obsluga\n");
+			printf("Info o danym interface\n");
 			break;
 		case SET_PORT:
 			if(set_ip("eth0","192.10.0.1","255.255.0.0"))	//wymagane odpalenie serwera z sudo
 				printf("byl error ..\n");
 			printf("Porty\n");
+			break;
+		case SET_MAC:
+			if(set_mac("eth0","12:91:78:56:34:12"))	//wymagane odpalenie serwera z sudo
+				printf("byl error ..\n");
 			break;
 		default:
 			printf("Jakis error albo cos\n");

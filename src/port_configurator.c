@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <arpa/inet.h>
+#include <net/if_arp.h>
 
 int set_ip(const char *deviceName, const char *ip, const char *netmask){
     struct ifreq ifr;
@@ -48,8 +49,7 @@ int set_ip(const char *deviceName, const char *ip, const char *netmask){
     }
 
     ifr.ifr_flags |= IFF_UP | IFF_RUNNING;
-    if (ioctl(sock, SIOCSIFFLAGS, &ifr) < 0)
-    {
+    if (ioctl(sock, SIOCSIFFLAGS, &ifr) < 0){
         perror("Error if up: ");
         return 1;
     }
@@ -58,7 +58,38 @@ int set_ip(const char *deviceName, const char *ip, const char *netmask){
 
     return 0;
 }
-int get_if_info(const char* interface){//jak szukałem to natrafiłem, przyda Ci się i działa wyświetla ip na interface
+
+int set_mac(const char *deviceName, const char mac[]){
+    struct ifreq ifr;
+    int s;
+    
+    sscanf(mac, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+        &ifr.ifr_hwaddr.sa_data[0],
+        &ifr.ifr_hwaddr.sa_data[1],
+        &ifr.ifr_hwaddr.sa_data[2],
+        &ifr.ifr_hwaddr.sa_data[3],
+        &ifr.ifr_hwaddr.sa_data[4],
+        &ifr.ifr_hwaddr.sa_data[5]
+        );
+    printf("%s\n", &ifr.ifr_hwaddr.sa_data[0]);
+ 
+    s = socket(AF_INET, SOCK_DGRAM, 0);
+    if(s<0){
+        perror("Blad podczas tworzenia socketu");
+        return 1;
+    }
+ 
+    strcpy(ifr.ifr_name, deviceName);
+    ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
+    if(ioctl(s, SIOCSIFHWADDR, &ifr)<0){
+        perror("Error set mac: ");
+        return 1;
+    }
+ 
+    return 0;
+}
+
+int get_if_info(const char* interface){//jak Ci się przyda to bierz, jak nie to usuwam :D
 	int fd;
     struct ifreq ifr;
      
