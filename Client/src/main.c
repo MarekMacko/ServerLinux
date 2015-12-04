@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     char *sendmsg=malloc(sizeof(char)*MAXLINE);     //dokładna wiadomość dodaje nr uslugi
     char *tmp_message=malloc(sizeof(char)*MAXLINE);     //wiadomość przygotowywana
     char *message_type=malloc(sizeof(char)*20); //typ wiadomości
-
+    struct message *msg;
     //char pch[MAXLINE];
     //int nw=0;
     while(1){
@@ -94,19 +94,21 @@ int main(int argc, char **argv)
                 strcat(sendmsg,"1;");
                 strcat(sendmsg, tmp_message);
                 strncpy(sendline,sendmsg,strlen(sendmsg)-2);    //usuwa dwa ostatnie znaki czyli "/n;"
-                strcat(sendline,";");                           //dodaje średnik na końcu paczki
                 break;
             case DEV_INFO:                                      //informacje
                 strcat(sendmsg,"2;");
                 strcat(sendmsg, tmp_message);
                 strncpy(sendline,sendmsg,strlen(sendmsg)-2);
-                strcat(sendline,";");
                 break;
             case SET_PORT:   
                 strcat(sendmsg,"3;");
                 strcat(sendmsg, tmp_message);
                 strncpy(sendline,sendmsg,strlen(sendmsg)-2);
-                strcat(sendline,";");                      //setport
+                break;
+            case SET_MAC:   
+                strcat(sendmsg,"4;");
+                strcat(sendmsg, tmp_message);
+                strncpy(sendline,sendmsg,strlen(sendmsg)-2);
                 break;
             default:
                 printf("Brak takiego polecenia\n");
@@ -115,7 +117,17 @@ int main(int argc, char **argv)
         }
         if(sendline!=0)
         send_message_to_server(sockfd,sendline,strlen(sendline));
-        //receive_message(sockfd);
+        msg=receive_message(sockfd);
+    
+        switch(msg->nr){
+            case 0:
+                printf("%s\n",msg->msg);
+                break;
+            default:
+                printf("Błąd podczas wykonywania polecenia\n");
+        }
+        delete_message(msg);
+       
         
     }
     free(sendline);

@@ -71,7 +71,7 @@ int set_mac(const char *deviceName, const char mac[]){
         &ifr.ifr_hwaddr.sa_data[4],
         &ifr.ifr_hwaddr.sa_data[5]
         );
-    printf("%s\n", &ifr.ifr_hwaddr.sa_data[0]);
+    //printf("%s\n", &ifr.ifr_hwaddr.sa_data[0]);
  
     s = socket(AF_INET, SOCK_DGRAM, 0);
     if(s<0){

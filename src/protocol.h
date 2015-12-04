@@ -19,11 +19,11 @@ struct message {
 	char* msg;
 };
 
-int send_ack_nack(int fd, bool is_error, const char* error_msg);
-int send_message_to_server(int fd,const char* msg,size_t len);
+int send_message(int fd, bool is_message, const char* msg);
+int send_message_to_server(int fd, const char* msg, const size_t len);
 int send_dev_info(int fd);
 struct message* receive_message(int fd);
 void delete_message(struct message* m);
-int parse_message_key(const char *str);
+int parse_message_key(const char *str);	
 
 #endif
