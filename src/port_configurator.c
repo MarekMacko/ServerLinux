@@ -29,6 +29,7 @@ int set_ip(const char *deviceName, const char *ip, const char *netmask){
 
     if(ioctl (sock, SIOCSIFADDR, &ifr)<0){
         perror("Error ip: ");
+        close(sock);
         return 1;
     }
 
@@ -45,12 +46,14 @@ int set_ip(const char *deviceName, const char *ip, const char *netmask){
     if (ioctl (sock, SIOCSIFNETMASK, &ifr)<0)
     {
         perror("Error mask: ");
+        close(sock);
         return 1;
     }
 
     ifr.ifr_flags |= IFF_UP | IFF_RUNNING;
     if (ioctl(sock, SIOCSIFFLAGS, &ifr) < 0){
         perror("Error if up: ");
+        close(sock);
         return 1;
     }
 
@@ -83,9 +86,10 @@ int set_mac(const char *deviceName, const char mac[]){
     ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
     if(ioctl(s, SIOCSIFHWADDR, &ifr)<0){
         perror("Error set mac: ");
+        close(s);
         return 1;
     }
- 
+    close(s);
     return 0;
 }
 
