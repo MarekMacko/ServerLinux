@@ -72,7 +72,7 @@ static void event_loop(reactor* self)
         i = epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event    
 		for (--i; i >-1; --i) {
             eh = find_eh(self->rc, es[i].data.fd, 0);
-			printf("Finded eh fd %d:\n", ((a_ctx*)eh->ctx)->fd);
+	//		printf("Finded eh fd %d:\n", ((a_ctx*)eh->ctx)->fd);
 			if (eh)
                 eh->handle_events(eh, es[i].events);
         }

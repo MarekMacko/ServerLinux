@@ -7,7 +7,8 @@ SOURCES=../src/main.c\
 	../src/acceptor_eh.c\
 	../src/client_eh.c\
 	../src/protocol.c\
-	../src/port_configurator.c
+	../src/port_configurator.c\
+	../src/if_config.c
 NAME=server
 LIB_NAME=libserver.so
 

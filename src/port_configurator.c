@@ -93,34 +93,3 @@ int set_mac(const char *deviceName, const char mac[]){
     return 0;
 }
 
-int get_if_info(const char* interface){//jak Ci się przyda to bierz, jak nie to usuwam :D
-	int fd;
-    struct ifreq ifr;
-     
-    const char *iface = interface;
-    iface=interface;
-     
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
- 
-    //Type of address to retrieve - IPv4 IP address
-    ifr.ifr_addr.sa_family = AF_INET;
- 
-    //Copy the interface name in the ifreq structure
-    strncpy(ifr.ifr_name , iface , IFNAMSIZ-1);
-     
-    //get the ip address
-    ioctl(fd, SIOCGIFADDR, &ifr);
-     
-    //display ip
-    printf("IP address of %s - %s\n" , iface , inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr) );
-     
-    //get the netmask ip
-    ioctl(fd, SIOCGIFNETMASK, &ifr);
-     
-    //display netmask
-    printf("Netmask of %s - %s\n" , iface , inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr) );
-     
-    close(fd);
-
-	return 0;
-}
