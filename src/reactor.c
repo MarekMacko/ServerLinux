@@ -9,14 +9,14 @@ static event_handler* find_eh(reactor_core* rc, int fd, size_t* idx)
 {
 	size_t i = 0;
 	event_handler* eh = 0;
-	for(i=0; i <= rc->current_idx; i++){
+	for(i = 0; i <= rc->current_idx; i++){
 		if(rc->ehs[i] && (((a_ctx*)rc->ehs[i]->ctx)->fd == fd)){
-        	eh=rc->ehs[i];
+        	eh = rc->ehs[i];
             if(idx)
             	*idx = i;
-                	break;
-                }
-        }
+            break;
+    	}
+	}
 
 	return eh;
 }
@@ -42,6 +42,7 @@ static void add_eh(reactor* self, event_handler* eh)
 
 static void rm_eh(reactor* self, int fd)
 {
+   	printf("Remove event handler\n");
     size_t i = 0;
     event_handler* eh = find_eh(self->rc,fd, &i);
     if(!eh)
@@ -71,6 +72,7 @@ static void event_loop(reactor* self)
         i = epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event    
 		for (--i; i >-1; --i) {
             eh = find_eh(self->rc, es[i].data.fd, 0);
+			printf("Finded eh fd %d:\n", ((a_ctx*)eh->ctx)->fd);
 			if (eh)
                 eh->handle_events(eh, es[i].events);
         }

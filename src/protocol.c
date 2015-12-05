@@ -2,6 +2,10 @@
 #include <unistd.h>
 #include <string.h>
 
+
+//dupa debug
+#include <stdio.h>
+
 static struct message_key {
 	enum message_type id;
 	const char *str;
@@ -25,13 +29,13 @@ static int send_bytes(int fd, const char* msg, size_t len)
 
 int parse_message_key(const char *str)
 {
-int n_keys=sizeof(message_key) / sizeof(message_key[0]);
-int i;
-for (i = 0; i < n_keys; i++)
-	if (strcmp(str, message_key[i].str) == 0)
-		return message_key[i].id;
+	int n_keys = sizeof(message_key) / sizeof(message_key[0]);
+	int i;
+	for (i = 0; i < n_keys; i++)
+		if (strcmp(str, message_key[i].str) == 0)
+			return message_key[i].id;
 
-return ACK_NACK;	//lub najlepiej jakiś error
+	return ACK_NACK;	//lub najlepiej jakiś error
 }
 
 int send_message(int fd, bool is_message, const char* error_msg)
@@ -61,38 +65,21 @@ int send_dev_info(int fd)
 	return 0;
 }
 
-/*int send_user_list_reply(int fd, const char* names[], size_t len)
-{
-	char* msg = 0;
-	size_t mlen = 2;
-	size_t i = 0;
-	size_t offset = 0;
-	for (; i < len; ++i) {
-		mlen += strlen(names[i]) + 1; //dot separator
-	}
-	msg = malloc(mlen * sizeof(char));
-	strcpy(msg, "7.");
-	offset = 2;
-	for (i = 0; i < len; ++i) {
-		strcpy(msg+offset, names[i]);
-		offset += strlen(names[i]);
-		if (i < (len-1)) {
-			msg[offset] = '.';
-			++offset;
-		}
-	}
-
-	return send_bytes(fd, msg, mlen);
-}*/
-
 struct message* receive_message(int fd)
 {
-	size_t len = 0;
+	size_t len;
+	char buf[5];
+	int readed;
 	char* msg = 0;
 	struct message* m = 0;
 
-	if (read(fd, &len, sizeof(size_t)) < 1)
+//	readed = read(fd, &buf, 5);	
+	readed = read(fd, &len, sizeof(size_t));
+//	printf("readed %d",readed);
+	if (readed < 1)
 		return 0;
+
+//	printf("len = %d\n",(int)len);
 
 	msg = malloc(len * sizeof(char));
 	if (read(fd, msg, len) != len) {
@@ -100,7 +87,8 @@ struct message* receive_message(int fd)
 	}
 
 	m = malloc(sizeof(struct message));
-	m->msg_len=len-2;
+	m->msg_len = len-2;
+	printf("msg %s \n", msg);
 	switch (msg[0]) {
 		case '0':
 			m->nr = ACK_NACK;
@@ -145,9 +133,10 @@ struct message* receive_message(int fd)
 
 void delete_message(struct message* m)
 {
-	if (m->msg)
-		free(m->msg);
-	free(m);
+	if (m)
+		if (m->msg)
+			free(m->msg);
+		free(m);
 }
 
 
