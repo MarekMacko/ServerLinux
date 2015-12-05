@@ -51,12 +51,37 @@ int send_ifs_status(int fd)
 
 int send_ifs_info(int fd, struct message *m)
 {
+	const char if_delim[2] = "-";
+	printf("message %s\n",m->msg);
+	char* end_if_list = strchr(m->msg, ";");
+//	char* command = end_if_list++;
+	char* ifs_list = strtok(m->msg, ";");
+	char* ifs; // single interface name
+	
+	ifs = strtok(ifs_list, if_delim);
+	printf("command %s\n", end_if_list);	
+	while(ifs != 0)
+	{
+		printf("ifs = %s\n", ifs);
+		/*
+		switch(command){
+			case "ip4":
+				return send_if_ipamansk(fd, ifs, AF_INET); 				
+			case "ip6":
+				return send_if_ipamask(fd, ifs, AF_INET6);
+			default: 
+				perror("command not recognized\n");
+		}
+		*/
+		ifs = strtok(NULL, if_delim);
+	}
+	
 	return 1;
 }
 
 int send_ifs_addr_mac(int fd)
 {
-	struct ifaddrs *ifaddr, *ifa;
+/*	struct ifaddrs *ifaddr, *ifa;
 	char host[NI_MAXHOST];
 	int family, s;
 	socklen_t addr_len = sizeof(struct sockaddr_in);
@@ -81,19 +106,19 @@ int send_ifs_addr_mac(int fd)
 		}
 	}
 	freeifaddrs(ifaddr);
-
+*/
 	return 1;
 }
 
-static int get_if_ipamask(const char* interface, int family) { 
-    int fd; 
+static int send_if_ipamask(int fd, const char* interface, int family) { 
+    int t_fd; 
 	struct ifreq ifr;
-	char buff[NI_MAXHOST];
+	char buf[NI_MAXHOST];
 	printf("maxhost :%d\n",NI_MAXHOST);
 	const char *iface = interface;
 	//iface=interface;
 					    
-	fd = socket(family, SOCK_DGRAM, 0); 
+	t_fd = socket(family, SOCK_DGRAM, 0); 
 							 
 	//Type of address to retrieve - IPv4 IP address
 	ifr.ifr_addr.sa_family = family;
@@ -106,13 +131,15 @@ static int get_if_ipamask(const char* interface, int family) {
 														      
 	//display ip
 	printf("IP address of %s - %s\n" , iface , inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr) );
-																	      
+	strcat(buf,inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr)); 																	      
+
 	//get the netmask ip
 	ioctl(fd, SIOCGIFNETMASK, &ifr);
 																				      
 	//display netmask
-	 printf("Netmask of %s - %s\n" , iface , inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr) );
+	printf("Netmask of %s - %s\n" , iface , inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr) );
+	strcat(buf,inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr)); 																	      
 	   
-	close(fd);
-    return 0;
+	close(t_fd);
+    return send_message(fd, 1, buf);
 }

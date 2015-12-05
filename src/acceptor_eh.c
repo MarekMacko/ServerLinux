@@ -45,7 +45,7 @@ event_handler* construct_acceptor(reactor* r, serv_sett* ss)
 	
 	serv_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0); 
 	if(serv_fd < 0) {
-		perror("socket");
+		perror("construct_acceptor socket");
 		return 0; 
     }   
 													    
@@ -55,13 +55,13 @@ event_handler* construct_acceptor(reactor* r, serv_sett* ss)
 	serv_addr.sin_port = htons(ss->port);
 										    
 	if(bind(serv_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-		perror("socket");
+		perror("construct_acceptor bind");
 		close(serv_fd);
 		return 0; 
     }  		
 	
 	if(listen(serv_fd, LISTEN_BACKLOG) < 0) {
-		perror("listen");
+		perror("construct_acceptor listen");
 		close(serv_fd);
 		return 0; 
 	}											
