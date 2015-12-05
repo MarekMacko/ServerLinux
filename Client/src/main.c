@@ -115,18 +115,20 @@ int main(int argc, char **argv)
                 sendline=0;
                 break;
         }
-        if(sendline!=0)
-        send_message_to_server(sockfd,sendline,strlen(sendline));
-        msg=receive_message(sockfd);
-    
-        switch(msg->nr){
-            case 0:
-                printf("%s\n",msg->msg);
-                break;
-            default:
-                printf("Błąd podczas wykonywania polecenia\n");
+        if(sendline!=0){
+            send_message_to_server(sockfd,sendline,strlen(sendline));
+            msg=receive_message(sockfd);
+
+        
+            switch(msg->nr){
+                case 0:
+                    printf("%s\n",msg->msg);
+                    break;
+                default:
+                    printf("Błąd podczas wykonywania polecenia\n");
+            }
+            delete_message(msg);
         }
-        delete_message(msg);
        
         
     }
