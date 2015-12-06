@@ -1,3 +1,4 @@
 # ignore object file
 *.o
 *.so
+*.sw*
