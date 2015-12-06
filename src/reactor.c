@@ -27,15 +27,15 @@ static void add_eh(reactor* self, event_handler* eh)
     memset(&ee, 0, sizeof(ee));
     ee.events = EPOLLIN;
     ee.data.fd = ((a_ctx*)eh->ctx)->fd;
-    epoll_ctl(self->rc->epoll_fd,EPOLL_CTL_ADD, ((a_ctx*)eh->ctx)->fd, &ee);
+    epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_ADD, ((a_ctx*)eh->ctx)->fd, &ee);
 
     if(self->rc->current_idx < self->rc->max_cli - 1) {
         if((self->rc->current_idx == 0) && (self->rc->ehs[0] == 0)) {
             self->rc->ehs[0] = eh;
-       		printf(" Eh added to start\n");
+//       		printf(" Eh added to start\n");
 	    } else {
             self->rc->ehs[++(self->rc->current_idx)] = eh;
-    		printf(" Eh added to pos %d\n",(int)self->rc->current_idx);
+//    		printf(" Eh added to pos %d\n",(int)self->rc->current_idx);
 		}
 	}
 }

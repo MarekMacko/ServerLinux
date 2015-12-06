@@ -50,7 +50,7 @@ static void serve_client(event_handler* self, uint32_t events)
 	int result = -1;
 	struct message *msg;
 	int fd = ((a_ctx*)self->ctx)->fd;
-	if ( (events & EPOLLERR) || (events & EPOLLET) || (events & EPOLLOUT) || (events & EPOLLPRI) || (events & EPOLLRDHUP) || (events & EPOLLONESHOT) ||  (events & EPOLLHUP) )
+	if ( (events & EPOLLET) || (events & EPOLLPRI) || (events & EPOLLRDHUP) || (events & EPOLLONESHOT) ||  (events & EPOLLHUP) )
 		printf("Disconnected\n");
 
 	if (events & EPOLLIN) {
