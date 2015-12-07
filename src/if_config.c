@@ -20,12 +20,15 @@ int send_ifs_names(int fd)
 	struct ifaddrs *ifaddr, *ifa;
 	char buf[MAXIFS*IF_LEN_NAME];
 	int family;
+	
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");
 		exit(1);
 	}
+
 	memset(buf, 0, sizeof(buf));	
 	family = ifaddr->ifa_addr->sa_family;
+	
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
 			continue;
@@ -39,7 +42,7 @@ int send_ifs_names(int fd)
 	
 	return send_message(fd, 1, buf);
 }
-
+/*
 static int send_if_ipamask(int fd, const char* interface, int family) { 
     int t_fd; 
 	struct ifreq ifr;
@@ -74,6 +77,53 @@ static int send_if_ipamask(int fd, const char* interface, int family) {
 	   
 	printf("ipamask message :%s\n", buf);
 	close(t_fd);
+    return send_message(fd, 1, buf);
+}
+*/
+static int send_if_ipamask(int fd, const char* iface, int family) { 
+	
+	struct ifaddrs *ifaddr, *ifa;
+	char buf[50];
+	char addr_buf[INET6_ADDRSTRLEN];
+	char mask_buf[20];
+	const char* ip, * mask;
+	void *addr;
+	
+	if (getifaddrs(&ifaddr) == -1){
+		perror("getifaddrs");
+		exit(1);
+	}
+
+	memset(buf, 0, 50);	
+	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+		if (ifa->ifa_addr == NULL)
+			continue;
+		
+		if (strcmp(ifa->ifa_name, iface) == 0) {
+			if (ifa->ifa_addr->sa_family == family) {
+				if (family == AF_INET)
+					addr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+				else if (family == AF_INET6) 
+					addr = &((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr;
+				
+				strcat(buf, iface);
+				strcat(buf, "\t");
+				// TODO: size inet6
+		//		socklen_t size = family == AF_INET ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN;
+			 
+				ip = inet_ntop(family, addr, addr_buf, INET6_ADDRSTRLEN);
+				strcat(buf, ip);
+				strcat(buf, "\t");
+
+				addr = &((struct sockaddr_in *)ifa->ifa_netmask)->sin_addr;
+				mask = inet_ntop(family, addr, mask_buf, INET6_ADDRSTRLEN);
+				strcat(buf, mask);
+				break;
+			}
+		}
+	}
+	
+	freeifaddrs(ifaddr);
     return send_message(fd, 1, buf);
 }
 
