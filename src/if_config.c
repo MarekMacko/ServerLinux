@@ -55,7 +55,7 @@ static int send_if_ipamask(int fd, const char* iface, int family) {
 	char mask_buf[20];
 	const char* ip, * mask;
 	void *addr;
-	
+	bool is_found = false;
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");
 		exit(1);
@@ -76,20 +76,24 @@ static int send_if_ipamask(int fd, const char* iface, int family) {
 				strcat(buf, iface);
 				strcat(buf, "\t");
 				// TODO: size inet6
-		//		socklen_t size = family == AF_INET ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN;
+				socklen_t size = (family == AF_INET) ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN;
 			 
-				ip = inet_ntop(family, addr, addr_buf, INET6_ADDRSTRLEN);
+				ip = inet_ntop(family, addr, addr_buf, size);
 				strcat(buf, ip);
 				strcat(buf, "\t");
 
 				addr = &((struct sockaddr_in *)ifa->ifa_netmask)->sin_addr;
-				mask = inet_ntop(family, addr, mask_buf, INET6_ADDRSTRLEN);
+				mask = inet_ntop(family, addr, mask_buf, size);
 				strcat(buf, mask);
+				is_found = true;
 				break;
 			}
 		}
 	}
-	
+
+	if (!is_found)
+		strcpy(buf, "Interface not found");
+
 	freeifaddrs(ifaddr);
     return send_message(fd, 1, buf);
 }
@@ -109,11 +113,16 @@ int send_ifs_info(int fd, struct message *m)
 	char* end_if_list = strchr(msg, ';');
 	char* command = malloc(sizeof(char)*5);
 	
+	if (end_if_list == 0) 
+		return send_message(fd, 1, "You must set command \"ipv4\" or \"ipv6\"");
+	
 	strcpy(command, ++end_if_list);
+	
 	char* ifs_list = strtok(msg, ";");
 	char* ifs; // single interface name
 
 	ifs = strtok(ifs_list, if_delim);
+	
 	while(ifs != 0)
 	{	
 		if (strcmp(command, "ipv4") == 0) {
@@ -121,13 +130,13 @@ int send_ifs_info(int fd, struct message *m)
 		} else if (strcmp(command, "ipv6") == 0) {
 			send_if_ipamask(fd, ifs, AF_INET6);
 		} else {
-			printf("command not recognized\n");
+			return send_message(fd, 1, "Command is not recognized");
 		}
 		
 		ifs = strtok(NULL, if_delim);
 	}
 	
-	return 1;
+	return 0;
 }
 /*
 int send_ifs_addr_mac(int fd)
