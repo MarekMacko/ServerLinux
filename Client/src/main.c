@@ -90,7 +90,6 @@ int main(int argc, char **argv)
     char *sendmsg=malloc(sizeof(char)*MAXLINE);     //dokładna wiadomość dodaje nr uslugi
     char *tmp_message=malloc(sizeof(char)*MAXLINE);     //wiadomość przygotowywana
     char *message_type=malloc(sizeof(char)*20); //typ wiadomości
-    struct message *msg;
     //char pch[MAXLINE];
     //int nw=0;
     while(1){
