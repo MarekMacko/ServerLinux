@@ -40,7 +40,7 @@ int parse_message_key(const char *str)
 
 int send_message(int fd, bool is_message, const char* error_msg)
 {
-	char* msg = "0;";
+	char* msg = 0;
 	size_t len = 2;
 	if (is_message) {
 		len = strlen(error_msg) + 2;
@@ -68,7 +68,7 @@ int send_dev_info(int fd)
 struct message* receive_message(int fd)
 {
 	size_t len;
-	char buf[5];
+	//char buf[5];
 	int readed;
 	char* msg = 0;
 	struct message* m = 0;
@@ -88,7 +88,6 @@ struct message* receive_message(int fd)
 
 	m = malloc(sizeof(struct message));
 	m->msg_len = len-2;
-	printf("msg %s \n", msg);
 	switch (msg[0]) {
 		case '0':
 			m->nr = ACK_NACK;

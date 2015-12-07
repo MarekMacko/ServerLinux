@@ -119,7 +119,7 @@ int main(int argc, char **argv)
             send_message_to_server(sockfd,sendline,strlen(sendline));
             msg=receive_message(sockfd);
 
-        
+            if(msg!=0)
             switch(msg->nr){
                 case 0:
                     printf("%s\n",msg->msg);
