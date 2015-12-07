@@ -20,7 +20,7 @@ int send_ifs_names(int fd)
 	struct ifaddrs *ifaddr, *ifa;
 	char buf[MAXIFS*IF_LEN_NAME];
 	int family;
-	
+
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");
 		exit(1);
@@ -29,6 +29,10 @@ int send_ifs_names(int fd)
 	memset(buf, 0, sizeof(buf));	
 	family = ifaddr->ifa_addr->sa_family;
 	
+	
+	family = ifaddr->ifa_addr->sa_family;
+	memset(buf, 0, sizeof(buf));	
+
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
 			continue;
@@ -42,44 +46,7 @@ int send_ifs_names(int fd)
 	
 	return send_message(fd, 1, buf);
 }
-/*
-static int send_if_ipamask(int fd, const char* interface, int family) { 
-    int t_fd; 
-	struct ifreq ifr;
-	char buf[NI_MAXHOST];
-	
-	const char *iface = interface;
-	//iface=interface;
-	memset(buf, 0, NI_MAXHOST); 
-	t_fd = socket(family, SOCK_DGRAM, 0); 
-							 
-	//Type of address to retrieve - IPv4 IP address
-	ifr.ifr_addr.sa_family = family;
-								  
-	//Copy the interface name in the ifreq structure
-	strncpy(ifr.ifr_name , iface , IFNAMSIZ-1);
-											      
-	//get the ip address
-	ioctl(fd, SIOCGIFADDR, &ifr);
-	
-	strcat(buf, interface);
-	strcat(buf, "\t");
-	//display ip
-//	printf("IP address of %s - %s\n" , iface , inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr) );
-	strcat(buf, inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr)); 																	      
-	strcat(buf, "\t");
-	//get the netmask ip
-	ioctl(fd, SIOCGIFNETMASK, &ifr);
-																				      
-	//display netmask
-//	printf("Netmask of %s - %s\n" , iface , inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr) );
-	strcat(buf, inet_ntoa(( (struct sockaddr_in *)&ifr.ifr_addr )->sin_addr)); 																	      
-	   
-	printf("ipamask message :%s\n", buf);
-	close(t_fd);
-    return send_message(fd, 1, buf);
-}
-*/
+
 static int send_if_ipamask(int fd, const char* iface, int family) { 
 	
 	struct ifaddrs *ifaddr, *ifa;
@@ -148,14 +115,10 @@ int send_ifs_info(int fd, struct message *m)
 
 	ifs = strtok(ifs_list, if_delim);
 	while(ifs != 0)
-	{
-//		printf("ifs = %s\n", ifs);
-		
+	{	
 		if (strcmp(command, "ipv4") == 0) {
 			send_if_ipamask(fd, ifs, AF_INET);
-//			printf("ip4 \n");
 		} else if (strcmp(command, "ipv6") == 0) {
-//			printf("ip6 \n");
 			send_if_ipamask(fd, ifs, AF_INET6);
 		} else {
 			printf("command not recognized\n");
@@ -166,7 +129,7 @@ int send_ifs_info(int fd, struct message *m)
 	
 	return 1;
 }
-
+/*
 int send_ifs_addr_mac(int fd)
 {
     int t_fd; 
@@ -202,5 +165,4 @@ int send_ifs_addr_mac(int fd)
 	close(t_fd);
     return send_message(fd, 1, buf);
 //	return 1;
-}
-
+}*/

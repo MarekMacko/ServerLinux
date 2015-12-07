@@ -7,16 +7,40 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "../../src/protocol.h"
 
 #define MAXLINE 4096
 #define PORT 3000
+#define NUM_THREADS 2
+void *Datareader(void *fde)
+{
+    int fd;
+    fd=(int)fde;
+    struct message *receive;
+    while(1){
+    receive=receive_message(fd);
+            if(receive!=0)
+            switch(receive->nr){
+                case 0:
+                    puts(receive->msg);
+                    break;
+                default:
+                    printf("Błąd podczas wykonywania polecenia\n");
+            }
+            delete_message(receive);
+    }
+   pthread_exit(NULL);
+}
 
 int main(int argc, char **argv)
 {
     int sockfd;
     struct sockaddr_in servaddr;
+    pthread_t threads[NUM_THREADS];
+    int rc;
+    long t=0;
     char *sendline=malloc(sizeof(char)*MAXLINE);
 
     if((sockfd = socket(AF_INET, SOCK_STREAM,0))<0){
@@ -24,6 +48,13 @@ int main(int argc, char **argv)
         return 2;
     }
     memset(&servaddr, 0, sizeof(servaddr));
+
+    rc = pthread_create(&threads[t], NULL, Datareader, (void*)sockfd);
+    if (rc){
+     printf("ERROR; return code from pthread_create() is %d\n", rc);
+     exit(-1);
+    }
+
     if(argc>1)
         {
         strcpy(sendline,argv[1]);
@@ -116,27 +147,14 @@ int main(int argc, char **argv)
                 break;
         }
         if(sendline!=0){
-            send_message_to_server(sockfd,sendline,strlen(sendline));
-            msg=receive_message(sockfd);
-
-            if(msg!=0)
-            switch(msg->nr){
-                case 0:
-                    printf("%s\n",msg->msg);
-                    break;
-                default:
-                    printf("Błąd podczas wykonywania polecenia\n");
-            }
-            delete_message(msg);
+            send_message_to_server(sockfd,sendline,strlen(sendline)); 
         }
-       
-        
     }
     free(sendline);
+    pthread_exit(NULL);
     free(sendmsg);
     free(tmp_message);
     free(message_type);
     close(sockfd);
     return 0;
-
 }

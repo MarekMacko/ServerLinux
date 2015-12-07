@@ -18,7 +18,7 @@ $(LIB_NAME):$(OBJECTS)
 	$(CC) $(SOURCES) -shared -fPIC -o $(LIB_NAME)
 
 $(NAME):$(LIB_NAME)
-	$(CC) `pkg-config --cflags libconfig` $(OBJECTS) -I . -L . -l$(NAME) -o $(NAME) `pkg-config --libs libconfig`
+	$(CC) `pkg-config --cflags libconfig` $(OBJECTS) -I . -L . -l$(NAME) -pthread -o $(NAME) `pkg-config --libs libconfig`
 
 clean:
 	rm -f $(OBJECTS)
