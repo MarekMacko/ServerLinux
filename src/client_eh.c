@@ -12,7 +12,7 @@ static int handle_client_message(event_handler* self, struct message* m)
 {
 	int fd = ((a_ctx*)self->ctx)->fd;
 	int result = -1;
-
+	
 	switch(m->nr){
 		case IF_LIST:
 			result = send_ifs_names(fd);
