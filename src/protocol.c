@@ -40,7 +40,7 @@ int parse_message_key(const char *str)
 
 int send_message(int fd, bool is_message, const char* error_msg)
 {
-	char* msg = 0;
+	char* msg = "0;";
 	size_t len = 2;
 	if (is_message) {
 		len = strlen(error_msg) + 2;

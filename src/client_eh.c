@@ -5,8 +5,7 @@
 #include "reactor.h"
 #include "if_config.h"
 #include <sys/epoll.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <string.h>
 
 static int handle_client_message(event_handler* self, struct message* m)
 {
@@ -20,20 +19,29 @@ static int handle_client_message(event_handler* self, struct message* m)
 		case DEV_INFO:
 			result = send_ifs_info(fd, m);
 			break;
-		case SET_PORT:
-			if(set_ip("eth1","192.10.0.1","255.255.0.0"))	//wymagane odpalenie serwera z sudo
-				send_message(fd, 1, "Blad podczas ustawiania adresu ip i maski");
+		case SET_PORT:{
+			char *interface=strtok(m->msg,";");
+			char *ip=strtok(0,";");
+			char *mask=strtok(0,";");
+			printf("%s\n",mask );
+
+			if(set_ip(interface,ip,mask))	//wymagane odpalenie serwera z sudo
+				send_message(fd, 1, "Blad podczas ustawiania adresu ip i maski, sprawdz parametry");
 			else
 				send_message(fd, 1, "Adres ip zostal poprawnie ustawiony");
 			result = 1;
 			break;
-		case SET_MAC:
-			if(set_mac("eth1","12:91:78:56:34:12"))	//wymagane odpalenie serwera z sudo
-				send_message(fd, 1, "Blad podczas ustawiania mac adresu");
+		}
+		case SET_MAC:{
+			char *interface=strtok(m->msg,";");
+			char *mac=strtok(0,";");
+			if(set_mac(interface,mac))	//wymagane odpalenie serwera z sudo
+				send_message(fd, 1, "Blad podczas ustawiania mac adresu, sprawdz parametry");
 			else
 				send_message(fd, 1, "Adres mac zostal poprawnie ustawiony");
 			result = 1;
 			break;
+		}
 		default:
 			send_message(fd, 1, "Nieznana komenda, serwer nie może jej obsluzyc");
 			result = 1;

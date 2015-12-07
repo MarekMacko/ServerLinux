@@ -19,13 +19,13 @@ int send_ifs_names(int fd)
 {
 	struct ifaddrs *ifaddr, *ifa;
 	char buf[MAXIFS*IF_LEN_NAME];
-	int family;
+	//int family=0;
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");
 		exit(1);
 	}
 	
-	family = ifaddr->ifa_addr->sa_family;
+	//family = ifaddr->ifa_addr->sa_family;
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
 			continue;
@@ -42,7 +42,7 @@ int send_ifs_names(int fd)
 	return send_message(fd, 1, buf);
 }
 
-static int send_if_ipamask(int fd, const char* interface, int family) { 
+int send_if_ipamask(int fd, const char* interface, int family) { 
     int t_fd; 
 	struct ifreq ifr;
 	char buf[NI_MAXHOST];
