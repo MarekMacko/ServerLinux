@@ -8,8 +8,6 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-
-//debug
 #include <stdio.h>
 
 #define MAXIFS 10 // do zmiany 
@@ -50,52 +48,67 @@ int send_ifs_names(int fd)
 static int send_if_ipamask(int fd, const char* iface, int family) { 
 	
 	struct ifaddrs *ifaddr, *ifa;
-	char buf[50];
-	char addr_buf[INET6_ADDRSTRLEN];
-	char mask_buf[20];
-	const char* ip, * mask;
+	socklen_t addr_len = (family == AF_INET) ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN; // 16 or 46
+	char addr_buf[addr_len];
+	char mask_buf[addr_len];
 	void *addr;
 	bool is_found = false;
+	int size_out_buf = 150;//2*INET_ADDRSTRLEN+10;
+	char out_buf[size_out_buf];
+	
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");
 		exit(1);
 	}
 
-	memset(buf, 0, 50);	
+	memset(out_buf, 0, size_out_buf);
+	memset(addr_buf, 0, sizeof(addr_buf));
+	memset(mask_buf, 0, sizeof(mask_buf));
+	
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
 			continue;
 		
 		if (strcmp(ifa->ifa_name, iface) == 0) {
 			if (ifa->ifa_addr->sa_family == family) {
-				if (family == AF_INET)
+				if (family == AF_INET) {
 					addr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
-				else if (family == AF_INET6) 
+				} else if (family == AF_INET6) {
 					addr = &((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr;
-				
-				strcat(buf, iface);
-				strcat(buf, "\t");
-				// TODO: size inet6
-				socklen_t size = (family == AF_INET) ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN;
-			 
-				ip = inet_ntop(family, addr, addr_buf, size);
-				strcat(buf, ip);
-				strcat(buf, "\t");
+				}
 
-				addr = &((struct sockaddr_in *)ifa->ifa_netmask)->sin_addr;
-				mask = inet_ntop(family, addr, mask_buf, size);
-				strcat(buf, mask);
+				strcat(out_buf, iface);
+				strcat(out_buf, "\t");
+				 
+				if (inet_ntop(family, addr, addr_buf, addr_len) == NULL) {
+    				return send_message(fd, 1, "Translate address error\n");
+				}
+				strcat(out_buf, addr_buf);
+				strcat(out_buf, "\t");
+				
+				if (family == AF_INET) {
+					addr = &((struct sockaddr_in *)ifa->ifa_netmask)->sin_addr;
+				} else if (family == AF_INET6) {
+					addr = &((struct sockaddr_in6 *)ifa->ifa_netmask)->sin6_addr;
+				}
+				
+				if (inet_ntop(family, addr, mask_buf, addr_len) == NULL) {
+    				return send_message(fd, 1, "Trasnalte mask error\n");
+				}
+	
+				strcat(out_buf, mask_buf);
 				is_found = true;
 				break;
 			}
 		}
 	}
 
-	if (!is_found)
-		strcpy(buf, "Interface not found");
-
+	if (!is_found) {
+		sprintf(out_buf, "Interface %s not found", iface);
+	}
+	
 	freeifaddrs(ifaddr);
-    return send_message(fd, 1, buf);
+    return send_message(fd, 1, out_buf);
 }
 
 int send_ifs_status(int fd)

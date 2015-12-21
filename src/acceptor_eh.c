@@ -28,7 +28,6 @@ static void accept_cli(event_handler *self, uint32_t es)
 	socklen_t addr_len = sizeof(addr);
 	if(es & EPOLLIN){
 		c_fd = accept(fd, &addr, &addr_len);
-//		printf(" accept client with fd = %d", c_fd);
 		c_eh = construct_client_eh(c_fd, r);
 	 	r->add_eh(r, c_eh);	
 	}
@@ -83,7 +82,6 @@ event_handler* construct_acceptor(reactor* r, serv_sett* ss)
     }
 
 	r->rc->epoll_fd = epoll_fd;	
-	r->rc->max_cli = ss->max_clients;
 
 	ctx = malloc(sizeof(a_ctx));
 	ctx->r = r;

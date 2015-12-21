@@ -23,9 +23,8 @@ static int handle_client_message(event_handler* self, struct message* m)
 			char *interface=strtok(m->msg,";");
 			char *ip=strtok(0,";");
 			char *mask=strtok(0,";");
-			printf("%s\n",mask );
 
-			if(set_ip(interface,ip,mask))	//wymagane odpalenie serwera z sudo
+			if (set_ip(interface,ip,mask))	//wymagane odpalenie serwera z sudo
 				send_message(fd, 1, "Blad podczas ustawiania adresu ip i maski, sprawdz parametry");
 			else
 				send_message(fd, 1, "Adres ip zostal poprawnie ustawiony");
@@ -58,31 +57,33 @@ static void serve_client(event_handler* self, uint32_t events)
 	int result = -1;
 	struct message *msg;
 	int fd = ((a_ctx*)self->ctx)->fd;
-	if ( (events & EPOLLET) || (events & EPOLLPRI) || (events & EPOLLRDHUP) || (events & EPOLLONESHOT) ||  (events & EPOLLHUP) )
-		printf("Disconnected\n");
+	reactor *r = ((a_ctx*)self->ctx)->r;
 
 	if (events & EPOLLIN) {
 		msg = receive_message(fd);
-		printf("Serve_client received message: %s \n", msg->msg);
 
-		if (msg)
+		if (msg) {
+			printf("Serve_client received message: %s \n", msg->msg);
 			result = handle_client_message(self, msg);
+		}
 	} else {
 		printf("No EPOLLIN events\n");	
-		perror("No EPOLLIN events\n");	
 	}
 	if (result < 0) {
-		printf("result < 0 have to remove event handler\n");
-		((reactor*)((a_ctx*)self->ctx)->r)->rm_eh(((a_ctx*)self->ctx)->r, ((a_ctx*)self->ctx)->fd);
+		r->rm_eh(r, fd);
+		//((reactor*)((a_ctx*)self->ctx)->r)->rm_eh(((a_ctx*)self->ctx)->r, ((a_ctx*)self->ctx)->fd);
 	}
 }
 
 event_handler* construct_client_eh(int fd, reactor *r)
 {
 	event_handler *eh = malloc(sizeof(event_handler));
-	eh->handle_events = serve_client;	
-	((a_ctx*) eh->ctx)->fd = fd;
-	((a_ctx*) eh->ctx)->r = r;
+	eh->handle_events = serve_client;
+	
+	a_ctx* ctx = malloc(sizeof(a_ctx));
+	ctx->r = r;
+	ctx->fd = fd;
+	eh->ctx = ctx;
 	
 	return eh;
 }
