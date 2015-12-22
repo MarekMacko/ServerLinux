@@ -19,28 +19,12 @@ static int handle_client_message(event_handler* self, struct message* m)
 		case DEV_INFO:
 			result = send_ifs_info(fd, m, DEV_INFO);
 			break;
-		case SET_PORT:{
-			char *interface=strtok(m->msg,";");
-			char *ip=strtok(0,";");
-			char *mask=strtok(0,";");
-
-			if (set_ip(interface,ip,mask))	//wymagane odpalenie serwera z sudo
-				send_message(fd, 1, "Blad podczas ustawiania adresu ip i maski, sprawdz parametry");
-			else
-				send_message(fd, 1, "Adres ip zostal poprawnie ustawiony");
-			result = 1;
+		case SET_PORT:
+			result = set_ip(fd, m);	//wymagane odpalenie serwera z sudo
 			break;
-		}
-		case SET_MAC:{
-			char *interface=strtok(m->msg,";");
-			char *mac=strtok(0,";");
-			if(set_mac(interface,mac))	//wymagane odpalenie serwera z sudo
-				send_message(fd, 1, "Blad podczas ustawiania mac adresu, sprawdz parametry");
-			else
-				send_message(fd, 1, "Adres mac zostal poprawnie ustawiony");
-			result = 1;
+		case SET_MAC:
+			result = set_mac(fd, m);	//wymagane odpalenie serwera z sudo
 			break;
-		}
 		default:
 			send_message(fd, 1, "Command is not recognized");
 			result = 0;
