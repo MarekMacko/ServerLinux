@@ -55,12 +55,6 @@ int send_message_to_server(int fd, const char* msg, size_t len)
 	return 0;
 }
 
-int send_dev_info(int fd)
-{
-
-	return 0;
-}
-
 struct message* receive_message(int fd)
 {
 	size_t len;

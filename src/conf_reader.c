@@ -31,5 +31,6 @@ int read_settings(const char *config_file_name, serv_sett *ss){
 		error("No 'max clients' setttings in configuration file\n", &cfg);
 		return -1;
 	}
+	config_destroy(&cfg);
 	return 0;
 }

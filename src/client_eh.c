@@ -14,10 +14,10 @@ static int handle_client_message(event_handler* self, struct message* m)
 	
 	switch(m->nr){
 		case IF_LIST:
-			result = send_ifs_names(fd);
+			result = send_ifs_info(fd, m, IF_LIST);
 			break;
 		case DEV_INFO:
-			result = send_ifs_info(fd, m);
+			result = send_ifs_info(fd, m, DEV_INFO);
 			break;
 		case SET_PORT:{
 			char *interface=strtok(m->msg,";");
@@ -42,12 +42,11 @@ static int handle_client_message(event_handler* self, struct message* m)
 			break;
 		}
 		default:
-			send_message(fd, 1, "Nieznana komenda, serwer nie może jej obsluzyc");
-			result = 1;
+			send_message(fd, 1, "Command is not recognized");
+			result = 0;
 	}
 	delete_message(m);
 	return result;
-
 }
 
 

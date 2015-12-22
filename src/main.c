@@ -18,6 +18,7 @@ int main(int argc, char **argv)
 
 	serv_eh = construct_acceptor(r, &ss); 
 	if (serv_eh == 0) {
+		destroy_reactor(r);
 		return -1;
 	}
 	
