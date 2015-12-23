@@ -9,7 +9,8 @@ enum message_type {
 	IF_LIST,	//pobieranie listy interface
 	DEV_INFO,	//pobieranie ustawien interface
 	SET_PORT,	//ustawianie ip maski i macu na porcie
-	SET_MAC
+	SET_MAC,
+	EXIT
 };
 
 

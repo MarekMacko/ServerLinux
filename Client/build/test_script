@@ -1,22 +1,28 @@
 #!/bin/bash
 echo "Script started"
 
-mkfifo /tmp/client-input #create pipe
-cat > /tmp/client-input & #start it in background
-echo $! > /tmp/client-input-cat-pid #save pid for later kill
-cat /tmp/client-input | ./client &
+mkfifo $PWD/client-input #create pipe
+cat > $PWD/client-input & #start it in background
+echo $! > $PWD/client-input-cat-pid #save pid for later kill
+cat $PWD/client-input | ./client &
 
-for ((i=0; i<1000; i++)); do
-	#sleep 1s	
-	echo "if_list asd" > /tmp/client-input
-	echo "get_info all;ipv4" > /tmp/client-input
-	echo "get_info all;ipv6" > /tmp/client-input
+for ((i=0; i<100; i++)) do
+	
+	echo "$i";
+	
+	cat $PWD/client-input | ./client &
+	echo "if_list asd" > $PWD/client-input
+	#echo "get_info all;ipv4" > $PWD/client-input
+	#echo "get_info all;ipv6" > $PWD/client-input
+	#echo "set_ip eth1 10.10.1.1 255.0.0.0" > $PWD/client-input
+	#echo "quit 1" > $PWD/client-input
+	
 done
 #sleep 1
-file="/tmp/client-input-cat-pid"
+file="$PWD/client-input-cat-pid"
 pid=$(cat "$file")
 echo $pid
 #kill $pid
-rm /tmp/client-input
-rm /tmp/client-input-cat-pid
+rm $PWD/client-input
+rm $PWD/client-input-cat-pid
 echo "Script finished"

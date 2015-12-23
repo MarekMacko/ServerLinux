@@ -14,42 +14,47 @@
 #define MAXLINE 4096
 #define PORT 3000
 #define NUM_THREADS 2
+
+int sockfd=-1;
+int loop=1;
+
 void *Datareader(void *fde)
 {
-    int fd;
-    fd=(int)fde;
+    //int fd=(int)fde;
     struct message *receive;
-    while(1){
-    receive=receive_message(fd);
-            if(receive!=0)
-            switch(receive->nr){
-                case 0:
-                    puts(receive->msg);
-                    break;
-                default:
-                    printf("Błąd podczas wykonywania polecenia\n");
+    while(loop){
+    //printf("%d\n",sockfd);
+    receive=receive_message(sockfd);
+            if(receive!=0){
+                switch(receive->nr){
+                    case 0:
+                        puts(receive->msg);
+                        break;
+                    default:
+                        printf("Błąd podczas wykonywania polecenia\n");
+                }
             }
             delete_message(receive);
     }
-   pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 int main(int argc, char **argv)
 {
-    int sockfd;
+    //int sockfd;
     struct sockaddr_in servaddr;
-    pthread_t threads[NUM_THREADS];
+    pthread_t thread;
     int rc;
-    long t=0;
+    //long t=0;
     char *sendline=malloc(sizeof(char)*MAXLINE);
 
     if((sockfd = socket(AF_INET, SOCK_STREAM,0))<0){
         perror("PROBLEM in creating the socket");
-        return 2;
+        return -1;
     }
     memset(&servaddr, 0, sizeof(servaddr));
 
-    rc = pthread_create(&threads[t], NULL, Datareader, (void*)sockfd);
+    rc = pthread_create(&thread, NULL, Datareader, NULL);
     if (rc){
      printf("ERROR; return code from pthread_create() is %d\n", rc);
      exit(-1);
@@ -83,7 +88,7 @@ int main(int argc, char **argv)
 
     if(connect(sockfd,(struct sockaddr *) &servaddr, sizeof(servaddr))<0){
         perror("Problem in create connect");
-        return 3;
+        return -1;
     }
 
     char *tmp_sendmsg=sendline;     //potrzebny wskaznik na początek sendline
@@ -91,34 +96,36 @@ int main(int argc, char **argv)
     char *tmp_message=malloc(sizeof(char)*MAXLINE);     //wiadomość przygotowywana
     char *message_type=malloc(sizeof(char)*20); //typ wiadomości
     //char pch[MAXLINE];
-    //int nw=0;
-    while(1){
+    int nw=0;
+    while(loop){
         sendline=tmp_sendmsg;
         memset(sendline,0,sizeof(*sendline)*MAXLINE);//czyszczenie buforu
-        fgets(sendline,MAXLINE,stdin);
+        fgets(sendline,MAXLINE-1,stdin);
         sendline=strtok(sendline," ");
 
+        nw=strlen(sendline);
         //if długość polecenia jest mniejsza niż 20 znaków
-        if(strlen(sendline)<20){
+        if(nw<20){
             memset(message_type,0,sizeof(char)*20);
             strcpy(message_type,sendline);
         }else{
-            message_type=0;
+            *message_type=0;
         }
 
-        //prepare message
-        memset(tmp_message,0,sizeof(char)*20);
-        sendline=strtok(0," ");
-        while(sendline != 0){
-            strcat(tmp_message,sendline);
-            strcat(tmp_message,";");
+        if(message_type!=0){
+            //prepare message
+            memset(tmp_message,0,sizeof(char)*20);
             sendline=strtok(0," ");
+            while(sendline != 0){
+                strcat(tmp_message,sendline);
+                strcat(tmp_message,";");
+                sendline=strtok(0," ");
+            }
+            //end prepare message
+            sendline=tmp_sendmsg;
+            memset(sendline,0,sizeof(char)*MAXLINE);
+            memset(sendmsg,0,sizeof(char)*MAXLINE);
         }
-        //end prepare message
-        sendline=tmp_sendmsg;
-        memset(sendline,0,sizeof(char)*MAXLINE);
-        memset(sendmsg,0,sizeof(char)*MAXLINE);
-
         switch (parse_message_key(message_type)){
             case IF_LIST:                                      //lista interface
                 strcat(sendmsg,"1;");
@@ -140,20 +147,28 @@ int main(int argc, char **argv)
                 strcat(sendmsg, tmp_message);
                 strncpy(sendline,sendmsg,strlen(sendmsg)-2);
                 break;
+            case EXIT:
+                loop=0;
+                break;
             default:
                 printf("Brak takiego polecenia\n");
                 sendline=0;
                 break;
         }
-        if(sendline!=0){
+        
+        //printf("%s\n",);
+        if(sendline){
             send_message_to_server(sockfd,sendline,strlen(sendline)); 
         }
     }
+    //free(tmp_message);
+    pthread_join(thread,NULL);
     free(sendline);
-    pthread_exit(NULL);
+    //(void) pthread_join(rc,NULL);
     free(sendmsg);
-    free(tmp_message);
     free(message_type);
+    free(tmp_message);
     close(sockfd);
+    //pthread_cancel(rc);
     return 0;
 }

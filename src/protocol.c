@@ -1,6 +1,7 @@
 #include "protocol.h"
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 
 
 static struct message_key {
@@ -11,7 +12,8 @@ static struct message_key {
 						{ IF_LIST, "if_list" },
 						{ DEV_INFO, "get_info" },
 						{ SET_PORT, "set_ip" },
-						{ SET_MAC, "set_mac" }
+						{ SET_MAC, "set_mac" },
+						{ EXIT, "quit"}
 };
 
 static int send_bytes(int fd, const char* msg, size_t len)
@@ -73,6 +75,7 @@ struct message* receive_message(int fd)
 
 	m = malloc(sizeof(struct message));
 	m->msg_len = len-2;
+	//printf("%s\n",msg );
 	switch (msg[0]) {
 		case '0':
 			m->nr = ACK_NACK;
@@ -110,7 +113,7 @@ struct message* receive_message(int fd)
 			free(m);
 			m = 0;
 	}
-
+	//printf("---%s---\n",msg );
 	free(msg);
 	return m;
 }
