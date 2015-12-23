@@ -16,10 +16,8 @@ int read_settings(const char *config_file_name, serv_sett *ss){
 		printf("%s:%d - %s\n", config_error_file(&cfg), config_error_line(&cfg), config_error_text(&cfg));
 		error("No file found\n", &cfg);
 		return -1;
-	} else {
-		printf("Read settings successfully\n");
 	}
-	
+
 	if(config_lookup_int(&cfg, "port", &ss->port)){
 		printf("Port = %d\n", ss->port);
 	} else {
@@ -33,5 +31,6 @@ int read_settings(const char *config_file_name, serv_sett *ss){
 		error("No 'max clients' setttings in configuration file\n", &cfg);
 		return -1;
 	}
+	config_destroy(&cfg);
 	return 0;
 }

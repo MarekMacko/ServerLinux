@@ -9,11 +9,12 @@ static event_handler* find_eh(reactor_core* rc, int fd, size_t* idx)
 {
 	size_t i = 0;
 	event_handler* eh = 0;
-	for(i = 0; i <= rc->current_idx; i++){
-		if(rc->ehs[i] && (((a_ctx*)rc->ehs[i]->ctx)->fd == fd)){
-        	eh = rc->ehs[i];
-            if(idx)
+	for (i = 0; i <= rc->current_idx; i++) {
+		if(rc->ehs[i] && (((a_ctx*)rc->ehs[i]->ctx)->fd == fd)) {
+			eh = rc->ehs[i];
+            if(idx) {
             	*idx = i;
+			}
             break;
     	}
 	}
@@ -32,33 +33,37 @@ static void add_eh(reactor* self, event_handler* eh)
     if(self->rc->current_idx < self->rc->max_cli - 1) {
         if((self->rc->current_idx == 0) && (self->rc->ehs[0] == 0)) {
             self->rc->ehs[0] = eh;
-//       		printf(" Eh added to start\n");
 	    } else {
             self->rc->ehs[++(self->rc->current_idx)] = eh;
-//    		printf(" Eh added to pos %d\n",(int)self->rc->current_idx);
 		}
+	} else {
+		printf("To many clients\n");
 	}
+
 }
 
 static void rm_eh(reactor* self, int fd)
 {
-   	printf("Remove event handler\n");
     size_t i = 0;
     event_handler* eh = find_eh(self->rc,fd, &i);
-    if(!eh)
-        return;
-    
-    if(i<self->rc->current_idx)
-        self->rc->ehs[i]=self->rc->ehs[self->rc->current_idx];
+    if (!eh) {
+        printf("Removing eh with fd %d failed\n", fd);
+		return;
+    }
+	
+    if (self->rc->current_idx > i)
+        self->rc->ehs[i] = self->rc->ehs[self->rc->current_idx];
 
-    self->rc->ehs[self->rc->current_idx]=0;
-    if(self->rc->current_idx>0){
+    self->rc->ehs[self->rc->current_idx] = 0;
+    if (self->rc->current_idx > 0) {
         --(self->rc->current_idx);
     }
     
-    epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_DEL, ((a_ctx*)eh->ctx)->fd,0);
+    epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_DEL, ((a_ctx*)eh->ctx)->fd, 0);
     close(((a_ctx*)eh->ctx)->fd);
     free(eh);
+
+    printf("Removing eh with fd %d success\n", fd);
 }
 
 static void event_loop(reactor* self)
@@ -72,20 +77,24 @@ static void event_loop(reactor* self)
         i = epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event    
 		for (--i; i >-1; --i) {
             eh = find_eh(self->rc, es[i].data.fd, 0);
-	//		printf("Finded eh fd %d:\n", ((a_ctx*)eh->ctx)->fd);
-			if (eh)
+			if (eh) {
                 eh->handle_events(eh, es[i].events);
+			}
         }
     }
 }
 
-reactor* create_reactor()
+reactor* create_reactor(int max_cli)
 {
     reactor* r = malloc(sizeof(reactor));
-    r->rc = (reactor_core*) malloc(sizeof(reactor_core));
-    r->rc->ehs = malloc(sizeof(event_handler*));
-
-    r->rc->epoll_fd = 0; // set in construct_acceptor
+    r->rc = malloc(sizeof(reactor_core));
+    r->rc->ehs = malloc(sizeof(event_handler*) * max_cli);
+	r->rc->max_cli = max_cli;
+	
+	int i;
+	for (i = 0; i < max_cli; i++) {
+		r->rc->ehs[i] = 0;
+	}
     r->rc->current_idx = 0;
     r->add_eh = &add_eh;
     r->rm_eh = &rm_eh;
@@ -94,7 +103,8 @@ reactor* create_reactor()
     return r;
 }
 
-void destroy_reactor(reactor* r){
+void destroy_reactor(reactor* r) {
+	free(r->rc->ehs);	
     free(r->rc);
     free(r);
 }

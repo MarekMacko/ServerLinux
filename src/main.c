@@ -11,20 +11,22 @@ int main(int argc, char **argv)
 	reactor *r = 0;
 	event_handler* serv_eh = 0; 
 
-	r = create_reactor();
+	r = create_reactor(ss.max_clients);
 	if (r == 0) {
-		perror("create_reactor failed");
 		return -1;
 	}
 
 	serv_eh = construct_acceptor(r, &ss); 
 	if (serv_eh == 0) {
-		perror("costruct_acceptor failed");
+		destroy_reactor(r);
 		return -1;
 	}
 	
 	r->add_eh(r, serv_eh);
 	r->event_loop(r);
+	
+	free(r);
+	free(serv_eh);
 
 	return 0;
 }

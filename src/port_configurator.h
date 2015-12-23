@@ -1,9 +1,10 @@
 #ifndef PORT_CONFIGURATOR_H
 #define PORT_CONFIGURATOR_H
+
 #include <unistd.h>
+#include "protocol.h"
 
-int set_ip(const char *deviceName, const char *ip, const char *netmask);
-int set_mac(const char *deviceName, const char *mac);
-
+int set_ip(int fd, struct message* m);
+int set_mac(int fd, struct message* m);
 
 #endif

@@ -3,9 +3,6 @@
 #include <string.h>
 
 
-//dupa debug
-#include <stdio.h>
-
 static struct message_key {
 	enum message_type id;
 	const char *str;
@@ -52,34 +49,22 @@ int send_message(int fd, bool is_message, const char* error_msg)
 	return send_bytes(fd, msg, len);
 }
 
-int send_message_to_server(int fd,const char* msg,size_t len)
+int send_message_to_server(int fd, const char* msg, size_t len)
 {
-
 	send_bytes(fd,msg,len);
-	return 0;
-}
-
-int send_dev_info(int fd)
-{
-
 	return 0;
 }
 
 struct message* receive_message(int fd)
 {
 	size_t len;
-	//char buf[5];
 	int readed;
 	char* msg = 0;
 	struct message* m = 0;
 
-//	readed = read(fd, &buf, 5);	
 	readed = read(fd, &len, sizeof(size_t));
-//	printf("readed %d",readed);
 	if (readed < 1)
 		return 0;
-
-//	printf("len = %d\n",(int)len);
 
 	msg = malloc(len * sizeof(char));
 	if (read(fd, msg, len) != len) {

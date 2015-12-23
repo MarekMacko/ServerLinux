@@ -1,5 +1,6 @@
 #ifndef CONF_READER_H
 #define CONF_READER_H
+
 #include <libconfig.h>
 
 typedef struct server_settings{
