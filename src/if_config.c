@@ -89,7 +89,7 @@ int send_ifs_info(int fd, struct message* m, enum message_type mes_type)
 			strcpy(ifs_separ, "-");
 		}
 		
-	 	command = malloc(sizeof(char)*6); 	
+	 	command = malloc(sizeof(char)*7); // longest "status" + 1 	
 		strcpy(command, ++end_ifs_list);
 
 		ifs_name = strtok(ifs_list, ifs_separ);

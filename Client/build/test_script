@@ -1,0 +1,22 @@
+#!/bin/bash
+echo "Script started"
+
+mkfifo /tmp/client-input #create pipe
+cat > /tmp/client-input & #start it in background
+echo $! > /tmp/client-input-cat-pid #save pid for later kill
+cat /tmp/client-input | ./client &
+
+for ((i=0; i<1000; i++)); do
+	#sleep 1s	
+	echo "if_list asd" > /tmp/client-input
+	echo "get_info all;ipv4" > /tmp/client-input
+	echo "get_info all;ipv6" > /tmp/client-input
+done
+#sleep 1
+file="/tmp/client-input-cat-pid"
+pid=$(cat "$file")
+echo $pid
+#kill $pid
+rm /tmp/client-input
+rm /tmp/client-input-cat-pid
+echo "Script finished"

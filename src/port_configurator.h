@@ -3,6 +3,7 @@
 
 #include <unistd.h>
 #include "protocol.h"
+
 int set_ip(int fd, struct message* m);
 int set_mac(int fd, struct message* m);
 
