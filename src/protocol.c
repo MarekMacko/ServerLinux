@@ -82,7 +82,7 @@ struct message* receive_message(int fd)
 			if(m->msg_len>0){
 				m->msg = malloc((len-1) * sizeof(char));
 				strncpy(m->msg, msg+2, len-2);
-				m->msg[len-2] = 0;
+				//m->msg[len-2] = 0;
 			}else m->msg = 0;
 			break;
 		case '1':
