@@ -13,7 +13,8 @@ static struct message_key {
 						{ DEV_INFO, "get_info" },
 						{ SET_PORT, "set_ip" },
 						{ SET_MAC, "set_mac" },
-						{ EXIT, "quit"}
+						{ EXIT, "quit"},
+						{ HELP, "help"}
 };
 
 static int send_bytes(int fd, const char* msg, size_t len)
@@ -30,9 +31,15 @@ int parse_message_key(const char *str)
 {
 	int n_keys = sizeof(message_key) / sizeof(message_key[0]);
 	int i;
-	for (i = 0; i < n_keys; i++)
-		if (strcmp(str, message_key[i].str) == 0)
-			return message_key[i].id;
+	for (i = 0; i < n_keys; i++){
+		if(i==IF_LIST || i==EXIT || i==HELP){
+			if (strncmp(str, message_key[i].str,strlen(message_key[i].str)) == 0)
+				return message_key[i].id;
+		}else{
+			if (strcmp(str, message_key[i].str) == 0)
+				return message_key[i].id;
+		}
+	}
 
 	return ACK_NACK;	//lub najlepiej jakiś error
 }
@@ -72,7 +79,6 @@ struct message* receive_message(int fd)
 	if (read(fd, msg, len) != len) {
 		return 0;
 	}
-
 	m = malloc(sizeof(struct message));
 	m->msg_len = len-2;
 	//printf("%s\n",msg );
@@ -87,9 +93,11 @@ struct message* receive_message(int fd)
 			break;
 		case '1':
 			m->nr = IF_LIST;
-			m->msg = malloc((len-1) * sizeof(char));
-			strncpy(m->msg, msg+2, len-2);
-			m->msg[len-2] = 0;
+			if(m->msg_len>0){
+				m->msg = malloc((len-1) * sizeof(char));
+				strncpy(m->msg, msg+2, len-2);
+				//m->msg[len-2] = 0;
+			}else m->msg = 0;
 			break;
 		case '2':
 			m->nr = DEV_INFO;
@@ -113,7 +121,7 @@ struct message* receive_message(int fd)
 			free(m);
 			m = 0;
 	}
-	//printf("---%s---\n",msg );
+	//printf("---%s---\n",m->msg );
 	free(msg);
 	return m;
 }

@@ -13,31 +13,12 @@
 
 #define MAXLINE 4096
 #define PORT 3000
-#define NUM_THREADS 2
 
 int sockfd=-1;
 int loop=1;
 
-void *Datareader(void *fde)
-{
-    //int fd=(int)fde;
-    struct message *receive;
-    while(loop){
-    //printf("%d\n",sockfd);
-    receive=receive_message(sockfd);
-            if(receive!=0){
-                switch(receive->nr){
-                    case 0:
-                        puts(receive->msg);
-                        break;
-                    default:
-                        printf("Błąd podczas wykonywania polecenia\n");
-                }
-            }
-            delete_message(receive);
-    }
-    pthread_exit(NULL);
-}
+void *Datareader(void *fde);
+
 
 int main(int argc, char **argv)
 {
@@ -49,14 +30,14 @@ int main(int argc, char **argv)
     char *sendline=malloc(sizeof(char)*MAXLINE);
 
     if((sockfd = socket(AF_INET, SOCK_STREAM,0))<0){
-        perror("PROBLEM in creating the socket");
+        perror("Socket: ");
         return -1;
     }
     memset(&servaddr, 0, sizeof(servaddr));
 
     rc = pthread_create(&thread, NULL, Datareader, NULL);
     if (rc){
-     printf("ERROR; return code from pthread_create() is %d\n", rc);
+     perror("Pthread: ");
      exit(-1);
     }
 
@@ -87,7 +68,7 @@ int main(int argc, char **argv)
     
 
     if(connect(sockfd,(struct sockaddr *) &servaddr, sizeof(servaddr))<0){
-        perror("Problem in create connect");
+        perror("Connect: ");
         return -1;
     }
 
@@ -129,8 +110,8 @@ int main(int argc, char **argv)
         switch (parse_message_key(message_type)){
             case IF_LIST:                                      //lista interface
                 strcat(sendmsg,"1;");
-                strcat(sendmsg, tmp_message);
-                strncpy(sendline,sendmsg,strlen(sendmsg)-2);    //usuwa dwa ostatnie znaki czyli "/n;"
+                //strcat(sendmsg, tmp_message);
+                strncpy(sendline,sendmsg,strlen(sendmsg));    //usuwa dwa ostatnie znaki czyli "/n;"
                 break;
             case DEV_INFO:                                      //informacje
                 strcat(sendmsg,"2;");
@@ -149,6 +130,9 @@ int main(int argc, char **argv)
                 break;
             case EXIT:
                 loop=0;
+                break;
+            case HELP:
+                //tutaj jakiś display helpa można zrobić
                 break;
             default:
                 printf("Brak takiego polecenia\n");
@@ -171,4 +155,28 @@ int main(int argc, char **argv)
     close(sockfd);
     //pthread_cancel(rc);
     return 0;
+}
+
+void *Datareader(void *fde)
+{
+    //int fd=(int)fde;
+    struct message *receive;
+    while(loop){
+    //printf("%d\n",sockfd);
+    receive=receive_message(sockfd);
+            if(receive!=0){
+                switch(receive->nr){
+                    case 0:
+                        puts(receive->msg);
+                        break;
+                    default:
+                        printf("Błąd podczas wykonywania polecenia\n");
+                }
+            }else{
+            loop=0;
+            delete_message(receive);
+            printf("Klient został rozłączony\n");
+        }
+    }
+    pthread_exit(NULL);
 }

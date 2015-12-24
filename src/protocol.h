@@ -10,7 +10,8 @@ enum message_type {
 	DEV_INFO,	//pobieranie ustawien interface
 	SET_PORT,	//ustawianie ip maski i macu na porcie
 	SET_MAC,
-	EXIT
+	EXIT,
+	HELP
 };
 
 
