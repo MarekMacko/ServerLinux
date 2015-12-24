@@ -37,9 +37,8 @@ int send_ifs_info(int fd, struct message* m, enum message_type mes_type)
 
 	// if client don't set command for interface
 	if ((end_ifs_list == 0) && (mes_type != IF_LIST)) {
-		return send_message(fd, 1, "You must set one of this command \n-status\n-mac\n-ipv4\n-ipv6");
+		return send_message(fd, 1, "You must set one of this command \n-status\n-mac\n-ipv4\n-ipv6\n");
 	}
-
 
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");

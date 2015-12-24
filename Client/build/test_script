@@ -1,28 +1,25 @@
 #!/bin/bash
 echo "Script started"
 
-mkfifo $PWD/client-input #create pipe
-cat > $PWD/client-input & #start it in background
-echo $! > $PWD/client-input-cat-pid #save pid for later kill
-cat $PWD/client-input | ./client &
-
-for ((i=0; i<100; i++)) do
-	
-	echo "$i";
-	
-	cat $PWD/client-input | ./client &
-	echo "if_list asd" > $PWD/client-input
-	#echo "get_info all;ipv4" > $PWD/client-input
-	#echo "get_info all;ipv6" > $PWD/client-input
-	#echo "set_ip eth1 10.10.1.1 255.0.0.0" > $PWD/client-input
-	#echo "quit 1" > $PWD/client-input
-	
+mkfifo client_input #create pipe
+cat > client_input & #start it in background
+echo $! > client_input_cat_pid #save pid for later kill
+cat client_input | ./client &
+for ((i=0; i<100; i++)); do
+	echo $i
+	echo "get_info all ipv4" > client_input &
+	echo "get_info all status" > client_input &
+	echo "get_info eth0-eth1-lo mac" > client_input &
+	echo "if_list" > client_input &
+	echo "if_list" > client_input &
+    #sleep 1s
 done
-#sleep 1
-file="$PWD/client-input-cat-pid"
+
+echo "quit" > client_input &
+file="$PWD/client_input_cat_pid"
 pid=$(cat "$file")
-echo $pid
-#kill $pid
-rm $PWD/client-input
-rm $PWD/client-input-cat-pid
+sleep 5
+kill $pid 
+rm $PWD/client_input
+rm $PWD/client_input_cat_pid
 echo "Script finished"

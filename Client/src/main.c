@@ -78,11 +78,15 @@ int main(int argc, char **argv)
     char *message_type=malloc(sizeof(char)*20); //typ wiadomości
     //char pch[MAXLINE];
     int nw=0;
-    while(loop){
-        sendline=tmp_sendmsg;
-        memset(sendline,0,sizeof(*sendline)*MAXLINE);//czyszczenie buforu
-        fgets(sendline,MAXLINE-1,stdin);
-        sendline=strtok(sendline," ");
+    while(loop) {
+        sendline = tmp_sendmsg;
+        memset(sendline, 0, sizeof(char)*MAXLINE);//czyszczenie buforu
+		fgets(sendline, MAXLINE-1, stdin);
+		if ((sendline == NULL) || !strcmp(sendline, "\0")) {
+			continue;
+		}
+
+		sendline=strtok(sendline," ");
 
         nw=strlen(sendline);
         //if długość polecenia jest mniejsza niż 20 znaków
