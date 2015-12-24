@@ -167,7 +167,7 @@ void *Datareader(void *fde)
             if(receive!=0){
                 switch(receive->nr){
                     case 0:
-                        puts(receive->msg);
+						printf("%s", receive->msg);
                         break;
                     default:
                         printf("Błąd podczas wykonywania polecenia\n");

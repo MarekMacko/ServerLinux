@@ -46,7 +46,7 @@ static void serve_client(event_handler* self, uint32_t events)
 		msg = receive_message(fd);
 
 		if (msg) {
-			printf("Serve_client received message: %s \n", msg->msg);
+			printf("Server received message from fd=%d: %s \n", fd, msg->msg);
 			result = handle_client_message(self, msg);
 		}
 	} else {

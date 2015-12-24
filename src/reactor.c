@@ -47,7 +47,7 @@ static void rm_eh(reactor* self, int fd)
     size_t i = 0;
     event_handler* eh = find_eh(self->rc,fd, &i);
     if (!eh) {
-        printf("Removing eh with fd %d failed\n", fd);
+        printf("Removing client with fd %d failed\n", fd);
 		return;
     }
 	
@@ -63,7 +63,7 @@ static void rm_eh(reactor* self, int fd)
     close(((a_ctx*)eh->ctx)->fd);
     free(eh);
 
-    printf("Removing eh with fd %d success\n", fd);
+    printf("Removing client with fd %d success\n", fd);
 }
 
 static void event_loop(reactor* self)

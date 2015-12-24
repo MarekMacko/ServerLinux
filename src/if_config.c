@@ -24,11 +24,14 @@ int send_ifs_info(int fd, struct message* m, enum message_type mes_type)
 	char* ifs_list = NULL; // list of ifs client names 
 	char* end_ifs_list = NULL;
 	bool whole_ifs_list = false; // is client need to all list of interaces
-	if(msg!=NULL){
-	//end_ifs_list = strchr(msg, ';');
-		ifs_list = strtok(msg, ";");
-		if (strcmp(ifs_list, "all") == 0) {
-			whole_ifs_list = true;
+
+	if (msg) {
+		end_ifs_list = strchr(msg, ';');
+		if (end_ifs_list) {
+			ifs_list = strtok(msg, ";");
+			if (strcmp(ifs_list, "all") == 0) {
+				whole_ifs_list = true;
+			}
 		}
 	} 
 
@@ -37,7 +40,6 @@ int send_ifs_info(int fd, struct message* m, enum message_type mes_type)
 		return send_message(fd, 1, "You must set one of this command \n-status\n-mac\n-ipv4\n-ipv6");
 	}
 
-	
 
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");

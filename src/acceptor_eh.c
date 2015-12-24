@@ -29,7 +29,8 @@ static void accept_cli(event_handler *self, uint32_t es)
 	if(es & EPOLLIN){
 		c_fd = accept(fd, &addr, &addr_len);
 		c_eh = construct_client_eh(c_fd, r);
-	 	r->add_eh(r, c_eh);	
+	 	r->add_eh(r, c_eh);
+		printf("New client with fd=%d accepted\n", ((a_ctx*)c_eh->ctx)->fd);
 	}
 }
 
