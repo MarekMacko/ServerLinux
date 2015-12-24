@@ -24,18 +24,20 @@ int send_ifs_info(int fd, struct message* m, enum message_type mes_type)
 	char* ifs_list = NULL; // list of ifs client names 
 	char* end_ifs_list = NULL;
 	bool whole_ifs_list = false; // is client need to all list of interaces
-	
-	end_ifs_list = strchr(msg, ';');
-	ifs_list = strtok(msg, ";"); 
+	if(msg!=NULL){
+	//end_ifs_list = strchr(msg, ';');
+		ifs_list = strtok(msg, ";");
+		if (strcmp(ifs_list, "all") == 0) {
+			whole_ifs_list = true;
+		}
+	} 
 
 	// if client don't set command for interface
 	if ((end_ifs_list == 0) && (mes_type != IF_LIST)) {
 		return send_message(fd, 1, "You must set one of this command \n-status\n-mac\n-ipv4\n-ipv6");
 	}
 
-	if (strcmp(ifs_list, "all") == 0) {
-		whole_ifs_list = true;
-	}
+	
 
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");

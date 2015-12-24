@@ -26,6 +26,7 @@ int set_ip(int fd, struct message* m) {
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) {
         return send_message(fd, 1, "Error: set ip socket\n");
+        perror("Port_conf line 30: ");
 	}
 
     //
@@ -40,6 +41,7 @@ int set_ip(int fd, struct message* m) {
 
     if (ioctl (sock, SIOCSIFADDR, &ifr) < 0) {
         send_message(fd, 1, "Error: wrong interface name or ip\n");
+        perror("Port_conf line 45: ");
         close(sock);
         return 0;
     }
@@ -56,6 +58,7 @@ int set_ip(int fd, struct message* m) {
 
     if (ioctl (sock, SIOCSIFNETMASK, &ifr) < 0) {
         send_message(fd, 1, "Error: wrong mask\n");
+        perror("Port_conf line 62: ");
         close(sock);
         return 0;
     }
