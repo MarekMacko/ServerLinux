@@ -5,8 +5,7 @@ mkfifo client_input #create pipe
 cat > client_input & #start it in background
 echo $! > client_input_cat_pid #save pid for later kill
 cat client_input | ./client &
-for ((i=0; i<100; i++)); do
-	echo $i
+for ((i=0; i<5; i++)); do
 	echo "get_info all ipv4" > client_input &
 	echo "get_info all status" > client_input &
 	echo "get_info eth0-eth1-lo mac" > client_input &
