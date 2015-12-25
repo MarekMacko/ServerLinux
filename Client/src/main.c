@@ -82,6 +82,7 @@ int main(int argc, char **argv)
         sendline = tmp_sendmsg;
         memset(sendline, 0, sizeof(char)*MAXLINE);//czyszczenie buforu
 		fgets(sendline, MAXLINE-1, stdin);
+		
 		if ((sendline == NULL) || !strcmp(sendline, "\0")) {
 			continue;
 		}

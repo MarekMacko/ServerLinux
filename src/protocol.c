@@ -74,6 +74,10 @@ struct message* receive_message(int fd)
 	readed = read(fd, &len, sizeof(size_t));
 	if (readed < 1)
 		return 0;
+		
+	if (len < 1) {
+		return 0;
+	}
 
 	msg = malloc(len * sizeof(char));
 	if (read(fd, msg, len) != len) {
@@ -86,7 +90,7 @@ struct message* receive_message(int fd)
 		case '0':
 			m->nr = ACK_NACK;
 			if(m->msg_len>0){
-				m->msg = malloc((len-1) * sizeof(char));
+				m->msg = malloc((len-1) * sizeof(char));				
 				strncpy(m->msg, msg+2, len-2);
 				//m->msg[len-2] = 0;
 			}else m->msg = 0;

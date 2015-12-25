@@ -1,0 +1,24 @@
+#!/bin/bash
+loops=10
+clients=100
+function write_to_client {
+declare -a arr=("if_list" 
+				"get_info all mac"
+				"get_info all ipv4"
+				"get_info all ipv6"
+				"set_ip eth0 100.100.100.100 255.255.255.255"
+				"set_mac eth1 AA:AA:AA:AA:AA:AA"
+				)
+	for ((i=0; i<$loops; i++)) do
+		for j in "${arr[@]}" 
+		do
+			echo "$j"
+			sleep 1
+		done
+	done
+	echo "quit"
+}
+
+for ((i=0; i<$clients; i++)) do
+	write_to_client | ./client &
+done

@@ -25,7 +25,7 @@ int send_ifs_info(int fd, struct message* m, enum message_type mes_type)
 	char* end_ifs_list = NULL;
 	bool whole_ifs_list = false; // is client need to all list of interaces
 
-	if (msg) {
+	if ((msg != NULL) && (strcmp(msg, ""))) {
 		end_ifs_list = strchr(msg, ';');
 		if (end_ifs_list) {
 			ifs_list = strtok(msg, ";");
