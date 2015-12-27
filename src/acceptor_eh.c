@@ -21,16 +21,15 @@ static void accept_cli(event_handler *self, uint32_t es)
 {	
 	int c_fd = -1;
 	int fd = self->get_handle(self);
+	struct sockaddr addr;
+	socklen_t addr_len = sizeof(addr);
 	reactor* r = ((a_ctx*) self->ctx)->r;
 	event_handler* c_eh;
 	
-	struct sockaddr addr;
-	socklen_t addr_len = sizeof(addr);
-	if(es & EPOLLIN){
+	if (es & EPOLLIN) {
 		c_fd = accept(fd, &addr, &addr_len);
 		c_eh = construct_client_eh(c_fd, r);
-	 	r->add_eh(r, c_eh);
-		printf("New client with fd=%d accepted\n", ((a_ctx*)c_eh->ctx)->fd);
+		r->add_eh(r, c_eh);
 	}
 }
 

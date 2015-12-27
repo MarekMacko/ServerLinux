@@ -1,6 +1,6 @@
 #!/bin/bash
-loops=10
-clients=100
+loops=3
+clients=1000
 function write_to_client {
 declare -a arr=("if_list" 
 				"get_info all mac"
@@ -16,9 +16,12 @@ declare -a arr=("if_list"
 			sleep 1
 		done
 	done
+	sleep 5
 	echo "quit"
+
 }
 
 for ((i=0; i<$clients; i++)) do
-	write_to_client | ./client &
+	sleep 1
+	write_to_client | ./client & 
 done
