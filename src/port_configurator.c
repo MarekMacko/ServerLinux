@@ -80,7 +80,8 @@ int set_mac(int fd, struct message* m) {
 	if (mac == NULL) {
 		return send_message(fd, 1, "You must give mac\n");
 	}
-
+	
+	memset(&ifr, 0, sizeof(ifr));
     sscanf(mac, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
         &ifr.ifr_hwaddr.sa_data[0],
         &ifr.ifr_hwaddr.sa_data[1],
@@ -89,17 +90,16 @@ int set_mac(int fd, struct message* m) {
         &ifr.ifr_hwaddr.sa_data[4],
         &ifr.ifr_hwaddr.sa_data[5]
         );
-    //printf("%s\n", &ifr.ifr_hwaddr.sa_data[0]);
  
     s = socket(AF_INET, SOCK_DGRAM, 0);
     if (s < 0) {
         return send_message(fd, 1, "Error: set mac socket\n");
     }
  
-    strcpy(ifr.ifr_name, ifs_name);
-    ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
+    strncpy(ifr.ifr_name, ifs_name, IFNAMSIZ);
+	ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
     if (ioctl(s, SIOCSIFHWADDR, &ifr) < 0) {
-        send_message(fd, 1, "Error: wrong interface name\n");
+        send_message(fd, 1, "Error: wrong interface name or mac address\n");
         close(s);
         return 0;
     }
