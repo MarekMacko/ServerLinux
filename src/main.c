@@ -1,6 +1,7 @@
 #include "conf_reader.h"
 #include "reactor.h"
 #include "acceptor_eh.h"
+#include <signal.h>
 
 int main(int argc, char **argv)
 {
@@ -22,6 +23,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 	
+	signal(SIGPIPE, SIG_IGN);
 	r->add_eh(r, serv_eh);
 	r->event_loop(r);
 	
