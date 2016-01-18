@@ -1,6 +1,8 @@
 extern "C" {
 	#include "conf_reader.h"
 	#include "acceptor_eh.h"
+	#include "protocol.h"
+	#include "if_config.h"
 	#include "client_eh.h"
 	#include "reactor.h"
 }

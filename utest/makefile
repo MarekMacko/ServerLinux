@@ -10,7 +10,8 @@ libstub:
 
 test:
 	$(CXX) -I../src -I../src/os mocks/os_mock.cpp server_test.cpp \
-		../src/acceptor_eh.o ../src/client_eh.o ../src/reactor.o \
+		../src/protocol.o ../src/acceptor_eh.o ../src/if_config.o \
+		../src/port_configurator.o  ../src/client_eh.o ../src/reactor.o \
 		$(LD_FLAGS) -o server_test
 
 run: 
