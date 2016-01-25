@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-Wall -g -ftest-coverage -fprofile-arcs
-LDFLAGS=-lgcov
+CFLAGS=-Wall -g
+LDFLAGS=
 SOURCES=../src/main.c\
 	../src/reactor.c\
 	../src/conf_reader.c\
@@ -14,7 +14,6 @@ NAME=server
 LIB_NAME=libserver.so
 
 OBJECTS=$(SOURCES:.c=.o)
-TESTOBJS=$(SOURCES:.c=.gcda) $(SOURCES:.c=.gcno)
 
 all:$(NAME) $(LIB_NAME)
 
@@ -25,11 +24,10 @@ $(LIB_NAME):$(OBJECTS)
 	$(CC) $(SOURCES) -shared -fPIC -o $(LIB_NAME)
 
 $(NAME):$(LIB_NAME)
-	$(CC) `pkg-config --cflags libconfig` $(OBJECTS) -I . -L . -l$(NAME) -o $(NAME) `pkg-config --libs libconfig` $(LDFLAGS)
+	$(CC) `pkg-config --cflags libconfig` $(OBJECTS) -I . -L . -l$(NAME) -o $(NAME) `pkg-config --libs libconfig`
 
 clean:
 	rm -f $(OBJECTS)
-	rm -f $(TESTOBJS)
 	rm -f $(NAME)
 	rm -f $(LIB_NAME)
 

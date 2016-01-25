@@ -64,7 +64,7 @@ static void rm_eh(reactor* self, int fd)
     }
     
     os_epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_DEL, ((a_ctx*)eh->ctx)->fd, 0);
-    close(((a_ctx*)eh->ctx)->fd);
+    close(eh->get_handle(eh));
     free(eh);
 
     printf("Removing client with fd %d success\n", fd);
@@ -77,8 +77,12 @@ static void event_loop(reactor* self)
     struct epoll_event es[self->rc->max_cli];
     event_handler* eh = 0;
     
-	for(; i > -2;) {
-        i = os_epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event    
+	for(;;) {
+        i = os_epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event
+        if (i < 0) {
+            printf("Epoll error: %d\n", i);
+            break;
+        }
 		for (--i; i >-1; --i) {
             eh = find_eh(self->rc, es[i].data.fd, 0);
 			if (eh) {

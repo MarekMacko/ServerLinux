@@ -5,7 +5,7 @@ LD_FLAGS = -L. -Wl,--no-as-needed -ftest-coverage -lstub  -fprofile-arcs -ldl -l
 all: server libstub test
 	
 server:
-	make -C ../build all
+	make -f ../build/makefile all
 
 libstub:
 	$(CC) -g -fPIC ../src/os/os.c -shared -o libstub.so
@@ -21,11 +21,11 @@ run:
 
 report:
 	mkdir html
-	lcov --capture --directory ./ --output-file cov.info
+	lcov --capture --directory ../src/ --output-file cov.info
 	genhtml cov.info --output-directory html
 
 clean:
-	make -C ../build clean
+	make -f ../build/makefile clean
 	rm -f libstub.so server_test
 	rm -f cov.info
 	rm -rf html
