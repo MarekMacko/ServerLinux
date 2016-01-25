@@ -2,16 +2,16 @@ LD_FLAGS = -L. -Wl,--no-as-needed -ftest-coverage -lstub  -fprofile-arcs -ldl -l
 #
 	
 
-all: libstub test run
+all: server libstub test
 	
 server:
 	make -C ../build all
 
 libstub:
-	$(CC) -fPIC ../src/os/os.c -shared -o libstub.so
+	$(CC) -g -fPIC ../src/os/os.c -shared -o libstub.so
 
 test:
-	$(CXX) -I../src -I../src/os  mocks/os_mock.cpp server_test.cpp \
+	$(CXX) -g -I../src -I../src/os  mocks/os_mock.cpp server_test.cpp \
 		../src/protocol.o ../src/acceptor_eh.o ../src/if_config.o \
 		../src/port_configurator.o ../src/client_eh.o ../src/reactor.o \
 		$(LD_FLAGS) -o server_test

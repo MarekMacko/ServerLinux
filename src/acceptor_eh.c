@@ -2,13 +2,11 @@
 #include "acceptor_eh.h"
 #include "reactor.h"
 #include "client_eh.h"
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <string.h>
-#include <sys/epoll.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "os/os.h"
 
 #define LISTEN_BACKLOG 10
 
@@ -36,13 +34,12 @@ static void accept_cli(event_handler *self, uint32_t es)
 event_handler* construct_acceptor(reactor* r, serv_sett* ss) 
 {
 	int serv_fd = -1; 
-	int epoll_fd = -1; 
 	struct epoll_event ee; 
 	struct sockaddr_in serv_addr;
 	event_handler* eh;
 	a_ctx* ctx;
 	
-	serv_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0); 
+	serv_fd = os_socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0); 
 	if(serv_fd < 0) {
 		perror("construct_acceptor socket");
 		return 0; 
@@ -54,35 +51,17 @@ event_handler* construct_acceptor(reactor* r, serv_sett* ss)
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serv_addr.sin_port = htons(ss->port);
 										    
-	if(bind(serv_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+	if(os_bind(serv_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
 		perror("construct_acceptor bind");
 		close(serv_fd);
 		return 0; 
     }  		
 	
-	if(listen(serv_fd, LISTEN_BACKLOG) < 0) {
+	if(os_listen(serv_fd, LISTEN_BACKLOG) < 0) {
 		perror("construct_acceptor listen");
 		close(serv_fd);
 		return 0; 
-	}											
-	
-	epoll_fd = epoll_create(ss->max_clients + 1);
-	if (epoll_fd < 0){
-		perror("epoll_create");	
-		close(serv_fd);
-		return 0;
-	}   
-    
-	ee.events = EPOLLIN;
-    ee.data.fd = serv_fd;
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, serv_fd, &ee) < 0) {
-		perror("epoll_ctl");
-        close(epoll_fd);
-        close(serv_fd);
-        return 0;
-    }
-
-	r->rc->epoll_fd = epoll_fd;	
+	}												
 
 	ctx = malloc(sizeof(a_ctx));
 	ctx->r = r;

@@ -1,7 +1,6 @@
 #include "if_config.h"
 #include "reactor.h"
 #include "acceptor_eh.h"
-#include <sys/epoll.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -78,7 +77,7 @@ static void event_loop(reactor* self)
     struct epoll_event es[self->rc->max_cli];
     event_handler* eh = 0;
     
-	while(1) {
+	for(; i > -2;) {
         i = os_epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event    
 		for (--i; i >-1; --i) {
             eh = find_eh(self->rc, es[i].data.fd, 0);
@@ -91,15 +90,24 @@ static void event_loop(reactor* self)
 
 reactor* create_reactor(int max_cli)
 {
-    reactor* r = malloc(sizeof(reactor));
+    reactor* r = 0;
+    int i;
+    int epoll_fd = os_epoll_create(max_cli + 1);
+    if (epoll_fd < 0){
+        perror("epoll_create"); 
+        return 0;
+    }
+
+    r = malloc(sizeof(reactor));
     r->rc = malloc(sizeof(reactor_core));
     r->rc->ehs = malloc(sizeof(event_handler*) * (max_cli + 1));
 	r->rc->max_cli = max_cli;
 	
-	int i;
 	for (i = 0; i < max_cli; i++) {
 		r->rc->ehs[i] = 0;
 	}
+
+    r->rc->epoll_fd = epoll_fd;
     r->rc->current_idx = 0;
     r->add_eh = &add_eh;
     r->rm_eh = &rm_eh;

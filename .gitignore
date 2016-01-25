@@ -9,3 +9,6 @@ client
 server_test
 server
 config.cfg
+core
+cov.info
+html

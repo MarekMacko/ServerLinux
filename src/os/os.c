@@ -38,6 +38,11 @@ int os_close(int fd)
 	return close(fd);
 }
 
+int os_epoll_create(int size)
+{
+	return epoll_create(size);
+}
+
 int os_epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
 {
 	return epoll_ctl(epfd, op, fd, event);
