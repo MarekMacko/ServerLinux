@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "os/os.h"
 
 static event_handler* find_eh(reactor_core* rc, int fd, size_t* idx)
 {
@@ -31,7 +32,7 @@ static void add_eh(reactor* self, event_handler* eh)
 		memset(&ee, 0, sizeof(ee));
     	ee.events = EPOLLIN;
     	ee.data.fd = fd;
-    	epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_ADD, fd, &ee);
+    	os_epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_ADD, fd, &ee);
         printf("New client with fd=%d accepted\n", fd); 
 		if((self->rc->current_idx == 0) && (self->rc->ehs[0] == 0)) {
             self->rc->ehs[0] = eh;
@@ -63,7 +64,7 @@ static void rm_eh(reactor* self, int fd)
         --(self->rc->current_idx);
     }
     
-    epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_DEL, ((a_ctx*)eh->ctx)->fd, 0);
+    os_epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_DEL, ((a_ctx*)eh->ctx)->fd, 0);
     close(((a_ctx*)eh->ctx)->fd);
     free(eh);
 
@@ -78,7 +79,7 @@ static void event_loop(reactor* self)
     event_handler* eh = 0;
     
 	while(1) {
-        i = epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event    
+        i = os_epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event    
 		for (--i; i >-1; --i) {
             eh = find_eh(self->rc, es[i].data.fd, 0);
 			if (eh) {
