@@ -2,7 +2,10 @@
 *.o
 *.so
 *.sw*
+*.gcno
+*.gcda
 *~
 client
+server_test
 server
 config.cfg
