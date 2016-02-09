@@ -216,49 +216,6 @@ TEST(construct_acceptor_test, listen_failed)
 	
 	ASSERT_TRUE(true);
 }
-/*
-TEST(reactor_test, to_many_clients)
-{
-	reactor *r = 0;
-	event_handler *serv_eh;
-	int srv_fd = 2;
-	int epoll_fd = 4;
-
-	serv_sett ss;
-	ss.port = 3000;
-	ss.max_clients = 0;
-	
-
-	os_epoll_create_mock ecrem;
-	os_epoll_ctl_mock ecm;
-	os_epoll_wait_mock ewm;
-	
-	os_socket_mock osm;
-	os_bind_mock obm;
-	os_listen_mock olm;
-
-	EXPECT_FUNCTION_CALL(ecrem, (ss.max_clients+1)).WillOnce(Return(epoll_fd));
-//	EXPECT_FUNCTION_CALL(ecm, (epoll_fd, _, srv_fd, _)).WillOnce(Return(0));
-//	EXPECT_FUNCTION_CALL(ewm, (epoll_fd, _, _, -1)).WillOnce(Return(-1));
-
-	EXPECT_FUNCTION_CALL(osm, (_,_,_)).WillOnce(Return(srv_fd));
-	EXPECT_FUNCTION_CALL(obm, (srv_fd, _, _)).WillOnce(Return(0));
-	EXPECT_FUNCTION_CALL(olm, (srv_fd, _)).WillOnce(Return(0));
-
-	r = create_reactor(1);
-	if (r == 0) {
-		return;
-	}
-
-	serv_eh = construct_acceptor(r, &ss);
-	if (serv_eh == 0) {
-		destroy_reactor(r);
-		return;
-	}
-	
-	ASSERT_TRUE(true);
-}
-*/
 
 ACTION_P(read_size, size) 
 {
@@ -292,14 +249,9 @@ TEST(read_and_send_test, interfaces_list)
 	ss.port = 3000;
 	ss.max_clients = 10;
 
-	const char *msg = "2;all;mac";
-	int msg_len = strlen(msg);
-	
-//	struct message m;
-//	m.msg_len = msg_len;
-//	m.nr = DEV_INFO;
-//	m.msg = msg;
-	
+	const char *msg = "1;";
+	size_t msg_len = strlen(msg);
+		
 	reactor *r = 0;
 	event_handler* serv_eh = 0;
 
