@@ -11,7 +11,7 @@ static int handle_client_message(event_handler *self, struct message *m)
 {
 	int fd = ((a_ctx*)self->ctx)->fd;
 	int result = -1;
-	printf("handle message %s\n", m->msg);	
+	
 	switch(m->nr){
 		case IF_LIST:
 			result = send_ifs_all_names(fd); 
@@ -32,6 +32,7 @@ static int handle_client_message(event_handler *self, struct message *m)
 	delete_message(m);
 	return result;
 }
+
 
 
 static void serve_client(event_handler *self, uint32_t events)

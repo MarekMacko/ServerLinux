@@ -6,10 +6,10 @@
 #include <stdlib.h>
 #include "os/os.h"
 
-static event_handler* find_eh(reactor_core* rc, int fd, size_t* idx)
+static event_handler * find_eh(reactor_core *rc, int fd, size_t *idx)
 {
 	size_t i = 0;
-	event_handler* eh = 0;
+	event_handler *eh = 0;
 	for (i = 0; i <= rc->current_idx; i++) {
 		if(rc->ehs[i] && (((a_ctx*)rc->ehs[i]->ctx)->fd == fd)) {
 			eh = rc->ehs[i];
@@ -22,7 +22,7 @@ static event_handler* find_eh(reactor_core* rc, int fd, size_t* idx)
 	return eh;
 }
 
-static void add_eh(reactor* self, event_handler* eh)
+static void add_eh(reactor *self, event_handler *eh)
 {
     struct epoll_event ee;
     int fd = ((a_ctx*)eh->ctx)->fd; 

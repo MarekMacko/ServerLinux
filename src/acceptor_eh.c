@@ -52,13 +52,13 @@ event_handler* construct_acceptor(reactor* r, serv_sett* ss)
 	if(os_bind(serv_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
 		perror("construct_acceptor bind");
 		close(serv_fd);
-		return 0; 
+		return NULL; 
     }  		
 	
 	if(os_listen(serv_fd, LISTEN_BACKLOG) < 0) {
 		perror("construct_acceptor listen");
 		close(serv_fd);
-		return 0; 
+		return NULL; 
 	}												
 
 	ctx = malloc(sizeof(a_ctx));

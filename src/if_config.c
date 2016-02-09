@@ -120,7 +120,7 @@ static char * get_client_command(char *msg)
 	return NULL;
 }
 
-int send_ifs_mac(int fd, char *ifs_name) 
+static int send_ifs_mac(int fd, char *ifs_name) 
 {
 	struct ifaddrs *ifaddr, *ifa;
 	char mac_buf[MAC_ADDR_LEN];

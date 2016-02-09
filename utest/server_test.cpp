@@ -117,3 +117,91 @@ TEST(server_test, accept_client_success)
 
 	ASSERT_TRUE(true);
 }
+
+
+TEST(server_test, construct_acceptor_failed_socket)
+{
+	reactor *r = 0;
+	event_handler *serv_eh;
+	
+	
+	os_socket_mock osm;
+
+	EXPECT_FUNCTION_CALL(osm, (_,_,_)).WillOnce(Return(-1));
+
+	r = create_reactor(1);
+	if (r == 0) {
+		return;
+	}
+
+	serv_eh = construct_acceptor(r, NULL);
+	if (serv_eh == 0) {
+		destroy_reactor(r);
+		return;
+	}
+	
+	ASSERT_TRUE(true);
+}
+
+TEST(server_test, construct_acceptor_failed_bind)
+{
+	reactor *r = 0;
+	event_handler *serv_eh;
+	int serv_fd = 2;
+	
+	serv_sett ss;
+	ss.port = 3000;
+	ss.max_clients = 10;
+
+	os_socket_mock osm;
+	os_bind_mock obm;
+
+	EXPECT_FUNCTION_CALL(osm, (_,_,_)).WillOnce(Return(serv_fd));
+	EXPECT_FUNCTION_CALL(obm, (_,_,_)).WillOnce(Return(-1));
+
+	r = create_reactor(1);
+	if (r == 0) {
+		return;
+	}
+
+	serv_eh = construct_acceptor(r, &ss);
+	if (serv_eh == 0) {
+		destroy_reactor(r);
+		return;
+	}
+	
+	ASSERT_TRUE(true);
+}
+
+
+TEST(server_test, construct_acceptor_failed_listen)
+{
+	reactor *r = 0;
+	event_handler *serv_eh;
+	int srv_fd = 2;
+	
+	serv_sett ss;
+	ss.port = 3000;
+	ss.max_clients = 10;
+
+	os_socket_mock osm;
+	os_bind_mock obm;
+	os_listen_mock olm;
+
+	EXPECT_FUNCTION_CALL(osm, (_,_,_)).WillOnce(Return(srv_fd));
+	EXPECT_FUNCTION_CALL(obm, (srv_fd, _,_)).WillOnce(Return(0));
+	EXPECT_FUNCTION_CALL(olm, (srv_fd, _)).WillOnce(Return(-1));
+
+	r = create_reactor(1);
+	if (r == 0) {
+		return;
+	}
+
+	serv_eh = construct_acceptor(r, &ss);
+	if (serv_eh == 0) {
+		destroy_reactor(r);
+		return;
+	}
+	
+	ASSERT_TRUE(true);
+}
