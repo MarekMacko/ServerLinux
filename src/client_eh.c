@@ -7,17 +7,17 @@
 #include <sys/epoll.h>
 #include <string.h>
 
-static int handle_client_message(event_handler* self, struct message* m)
+static int handle_client_message(event_handler *self, struct message *m)
 {
 	int fd = ((a_ctx*)self->ctx)->fd;
 	int result = -1;
-	
+	printf("handle message %s\n", m->msg);	
 	switch(m->nr){
 		case IF_LIST:
-			result = send_ifs_info(fd, m, IF_LIST);
+			result = send_ifs_all_names(fd); 
 			break;
 		case DEV_INFO:
-			result = send_ifs_info(fd, m, DEV_INFO);
+			result = send_ifs_info(fd, m);
 			break;
 		case SET_PORT:
 			result = set_ip(fd, m);	//wymagane odpalenie serwera z sudo
@@ -34,8 +34,7 @@ static int handle_client_message(event_handler* self, struct message* m)
 }
 
 
-
-static void serve_client(event_handler* self, uint32_t events)
+static void serve_client(event_handler *self, uint32_t events)
 {
 	int result = -1;
 	struct message *msg;
@@ -46,7 +45,6 @@ static void serve_client(event_handler* self, uint32_t events)
 		msg = receive_message(fd);
 
 		if (msg) {
-		//	printf("Server received message from fd=%d: %s \n", fd, msg->msg);
 			result = handle_client_message(self, msg);
 		}
 	} else {
@@ -54,7 +52,6 @@ static void serve_client(event_handler* self, uint32_t events)
 	}
 	if (result < 0) {
 		r->rm_eh(r, fd);
-		//((reactor*)((a_ctx*)self->ctx)->r)->rm_eh(((a_ctx*)self->ctx)->r, ((a_ctx*)self->ctx)->fd);
 	}
 }
 

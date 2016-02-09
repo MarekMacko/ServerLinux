@@ -32,7 +32,7 @@ static void add_eh(reactor* self, event_handler* eh)
     	ee.events = EPOLLIN;
     	ee.data.fd = fd;
     	os_epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_ADD, fd, &ee);
-        printf("New client with fd=%d accepted\n", fd); 
+        printf("New event handler with fd=%d accepted\n", fd); 
 		if((self->rc->current_idx == 0) && (self->rc->ehs[0] == 0)) {
             self->rc->ehs[0] = eh;
 	    } else {
@@ -42,7 +42,6 @@ static void add_eh(reactor* self, event_handler* eh)
 		send_message(fd, 1, "To many clients\n");
 		close(fd);
 		free(eh);
-		printf("To many clients\n");
 	}
 }
 
@@ -64,7 +63,7 @@ static void rm_eh(reactor* self, int fd)
     }
     
     os_epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_DEL, ((a_ctx*)eh->ctx)->fd, 0);
-    close(eh->get_handle(eh));
+    close(fd);
     free(eh);
 
     printf("Removing client with fd %d success\n", fd);
