@@ -45,10 +45,10 @@ static void add_eh(reactor *self, event_handler *eh)
 	}
 }
 
-static void rm_eh(reactor* self, int fd)
+static void rm_eh(reactor * self, int fd)
 {
     size_t i = 0;
-    event_handler* eh = find_eh(self->rc,fd, &i);
+    event_handler *eh = find_eh(self->rc,fd, &i);
     if (!eh) {
         printf("Removing client with fd %d failed\n", fd);
 		return;
@@ -69,7 +69,7 @@ static void rm_eh(reactor* self, int fd)
     printf("Removing client with fd %d success\n", fd);
 }
 
-static void event_loop(reactor* self)
+static void event_loop(reactor *self)
 {
     int i = 0;
     int epoll_fd = self->rc->epoll_fd;
@@ -77,7 +77,7 @@ static void event_loop(reactor* self)
     event_handler* eh = 0;
     
 	for(;;) {
-        i = os_epoll_wait(epoll_fd, es, self->rc->max_cli, -1);  //czeka na event
+        i = os_epoll_wait(epoll_fd, es, self->rc->max_cli, -1);
         if (i < 0) {
             printf("Epoll error: %d\n", i);
             break;
@@ -91,9 +91,9 @@ static void event_loop(reactor* self)
     }
 }
 
-reactor* create_reactor(int max_cli)
+reactor * create_reactor(int max_cli)
 {
-    reactor* r = 0;
+    reactor *r = 0;
     int i;
     int epoll_fd = os_epoll_create(max_cli + 1);
     if (epoll_fd < 0){
@@ -119,7 +119,8 @@ reactor* create_reactor(int max_cli)
     return r;
 }
 
-void destroy_reactor(reactor* r) {
+void destroy_reactor(reactor *r) 
+{
 	free(r->rc->ehs);	
     free(r->rc);
     free(r);

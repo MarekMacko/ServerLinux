@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "os/os.h"
 
 static struct message_key {
 	enum message_type id;
@@ -17,7 +18,7 @@ static struct message_key {
 						{ HELP, "help"}
 };
 
-static int send_bytes(int fd, const char* msg, size_t len)
+static int send_bytes(int fd, const char *msg, size_t len)
 {
 	int result = -1;
 	if (write(fd, &len, sizeof(size_t)) > 0)
@@ -44,7 +45,7 @@ int parse_message_key(const char *str)
 	return ACK_NACK;	//lub najlepiej jakiś error
 }
 
-int send_message(int fd, bool is_message, const char* error_msg)
+int send_message(int fd, bool is_message, const char *error_msg)
 {
 	char* msg = "0;";
 	size_t len = 2;
@@ -64,44 +65,47 @@ int send_message_to_server(int fd, const char* msg, size_t len)
 	return 0;
 }
 
-struct message* receive_message(int fd)
+struct message *receive_message(int fd)
 {
 	size_t len;
 	int readed;
-	char* msg = 0;
-	struct message* m = 0;
-
-	readed = read(fd, &len, sizeof(size_t));
-	if (readed < 1)
+	char *msg = 0;
+	struct message *m = 0;
+	readed = os_read(fd, &len, sizeof(size_t));
+	
+	if (readed < 1) {
 		return 0;
-		
+	}
 	if (len < 1) {
 		return 0;
 	}
-
+	
 	msg = malloc(len * sizeof(char));
-	if (read(fd, msg, len) != len) {
+	if (os_read(fd, msg, len) != len) {
 		return 0;
 	}
+	
 	m = malloc(sizeof(struct message));
 	m->msg_len = len-2;
-	//printf("%s\n",msg );
+	
 	switch (msg[0]) {
 		case '0':
 			m->nr = ACK_NACK;
-			if(m->msg_len>0){
+			if (m->msg_len>0) {
 				m->msg = malloc((len-1) * sizeof(char));				
 				strncpy(m->msg, msg+2, len-2);
-				//m->msg[len-2] = 0;
-			}else m->msg = 0;
+			} else {
+				m->msg = 0;
+			}
 			break;
 		case '1':
 			m->nr = IF_LIST;
-			if(m->msg_len>0){
+			if (m->msg_len>0) {
 				m->msg = malloc((len-1) * sizeof(char));
 				strncpy(m->msg, msg+2, len-2);
-				//m->msg[len-2] = 0;
-			}else m->msg = 0;
+			} else {
+				m->msg = 0;
+			}
 			break;
 		case '2':
 			m->nr = DEV_INFO;
@@ -125,12 +129,12 @@ struct message* receive_message(int fd)
 			free(m);
 			m = 0;
 	}
-	//printf("---%s---\n",m->msg );
+	
 	free(msg);
 	return m;
 }
 
-void delete_message(struct message* m)
+void delete_message(struct message *m)
 {
 	if (m)
 		if (m->msg)
