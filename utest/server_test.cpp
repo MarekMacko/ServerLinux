@@ -130,7 +130,7 @@ TEST(server_test, accept_client_and_disconnect)
 }
 
 
-TEST(server_test, construct_acceptor_failed_socket)
+TEST(construct_acceptor_test, socket_failed)
 {
 	reactor *r = 0;
 	event_handler *serv_eh;
@@ -154,7 +154,7 @@ TEST(server_test, construct_acceptor_failed_socket)
 	ASSERT_TRUE(true);
 }
 
-TEST(server_test, construct_acceptor_failed_bind)
+TEST(construct_acceptor_test, bind_failed)
 {
 	reactor *r = 0;
 	event_handler *serv_eh;
@@ -185,7 +185,7 @@ TEST(server_test, construct_acceptor_failed_bind)
 }
 
 
-TEST(server_test, construct_acceptor_failed_listen)
+TEST(construct_acceptor_test, listen_failed)
 {
 	reactor *r = 0;
 	event_handler *serv_eh;
@@ -216,11 +216,63 @@ TEST(server_test, construct_acceptor_failed_listen)
 	
 	ASSERT_TRUE(true);
 }
+/*
+TEST(reactor_test, to_many_clients)
+{
+	reactor *r = 0;
+	event_handler *serv_eh;
+	int srv_fd = 2;
+	int epoll_fd = 4;
 
+	serv_sett ss;
+	ss.port = 3000;
+	ss.max_clients = 0;
+	
 
+	os_epoll_create_mock ecrem;
+	os_epoll_ctl_mock ecm;
+	os_epoll_wait_mock ewm;
+	
+	os_socket_mock osm;
+	os_bind_mock obm;
+	os_listen_mock olm;
 
+	EXPECT_FUNCTION_CALL(ecrem, (ss.max_clients+1)).WillOnce(Return(epoll_fd));
+//	EXPECT_FUNCTION_CALL(ecm, (epoll_fd, _, srv_fd, _)).WillOnce(Return(0));
+//	EXPECT_FUNCTION_CALL(ewm, (epoll_fd, _, _, -1)).WillOnce(Return(-1));
 
-TEST(server_test, accept_client_and_read_zero)
+	EXPECT_FUNCTION_CALL(osm, (_,_,_)).WillOnce(Return(srv_fd));
+	EXPECT_FUNCTION_CALL(obm, (srv_fd, _, _)).WillOnce(Return(0));
+	EXPECT_FUNCTION_CALL(olm, (srv_fd, _)).WillOnce(Return(0));
+
+	r = create_reactor(1);
+	if (r == 0) {
+		return;
+	}
+
+	serv_eh = construct_acceptor(r, &ss);
+	if (serv_eh == 0) {
+		destroy_reactor(r);
+		return;
+	}
+	
+	ASSERT_TRUE(true);
+}
+*/
+
+ACTION_P(read_size, size) 
+{
+	memcpy(arg1, (void*)size, sizeof(size_t));
+	return sizeof(size_t);
+}
+
+ACTION_P(read_msg, msg)
+{
+	memcpy(arg1, msg, strlen(msg));
+	return strlen(msg);
+}
+
+TEST(read_and_send_test, interfaces_list)
 {
 	int srv_fd = 5;
 	int cli_fd = 6;
@@ -240,6 +292,14 @@ TEST(server_test, accept_client_and_read_zero)
 	ss.port = 3000;
 	ss.max_clients = 10;
 
+	const char *msg = "2;all;mac";
+	int msg_len = strlen(msg);
+	
+//	struct message m;
+//	m.msg_len = msg_len;
+//	m.nr = DEV_INFO;
+//	m.msg = msg;
+	
 	reactor *r = 0;
 	event_handler* serv_eh = 0;
 
@@ -254,12 +314,13 @@ TEST(server_test, accept_client_and_read_zero)
 
 	os_read_mock orm;
 
+
 	// create reactor
 	EXPECT_FUNCTION_CALL(ecrem, (ss.max_clients+1)).WillOnce(Return(epoll_fd));
 	// 1: add_ed for server 	2: add_ed for client 3: rm_eh for client
 	EXPECT_FUNCTION_CALL(ecm, (epoll_fd, _, _, _)).Times(3)\
 													.WillRepeatedly(Return(0));
-	// 1: reactor->add_eh 		2: return -1
+
 	EXPECT_FUNCTION_CALL(ewm, (epoll_fd, _, _, -1)).Times(3)\
 									.WillOnce(DoAll(SetArgPointee<1>(e_srv), Return(1)))\
 									.WillOnce(DoAll(SetArgPointee<1>(e_cli), Return(1)))\
@@ -271,7 +332,9 @@ TEST(server_test, accept_client_and_read_zero)
 	EXPECT_FUNCTION_CALL(olm, (srv_fd, _)).WillOnce(Return(0));
 	EXPECT_FUNCTION_CALL(oam, (srv_fd, 0, 0)).WillOnce(Return(cli_fd));
 
-	EXPECT_FUNCTION_CALL(orm, (cli_fd, _, sizeof(size_t))).WillOnce(Return(10));
+	EXPECT_FUNCTION_CALL(orm, (cli_fd, _,_)).Times(2)\
+									.WillOnce(read_size(&msg_len))\
+									.WillOnce(read_msg(msg));
 
 	r = create_reactor(ss.max_clients);
 	if (r == 0) {
@@ -291,3 +354,4 @@ TEST(server_test, accept_client_and_read_zero)
 
 	ASSERT_TRUE(true);
 }
+
