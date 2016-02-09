@@ -12,7 +12,7 @@ static int handle_client_message(event_handler *self, struct message *m)
 	int fd = ((a_ctx*)self->ctx)->fd;
 	int result = -1;
 	
-	switch(m->nr){
+	switch (m->nr) {
 		case IF_LIST:
 			result = send_ifs_all_names(fd); 
 			break;
@@ -25,14 +25,10 @@ static int handle_client_message(event_handler *self, struct message *m)
 		case SET_MAC:
 			result = set_mac(fd, m);	//wymagane odpalenie serwera z sudo
 			break;
-		default:
-			send_message(fd, 1, "Command is not recognized");
-			result = 0;
 	}
 	delete_message(m);
 	return result;
 }
-
 
 
 static void serve_client(event_handler *self, uint32_t events)
@@ -41,20 +37,20 @@ static void serve_client(event_handler *self, uint32_t events)
 	struct message *msg;
 	int fd = ((a_ctx*)self->ctx)->fd;
 	reactor *r = ((a_ctx*)self->ctx)->r;
-
+	
 	if (events & EPOLLIN) {
 		msg = receive_message(fd);
-
 		if (msg) {
 			result = handle_client_message(self, msg);
 		}
 	} else {
-		printf("No EPOLLIN events\n");	
+		perror("No epollin events");	
 	}
 	if (result < 0) {
 		r->rm_eh(r, fd);
 	}
 }
+
 
 event_handler* construct_client_eh(int fd, reactor *r)
 {
