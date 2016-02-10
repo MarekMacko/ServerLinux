@@ -642,7 +642,7 @@ TEST(read_and_set, ip)
 	ss.port = 3000;
 	ss.max_clients = 10;
 
-	const char *msg = "3;eth0;100.100.100.100;255.255.255.255";
+	const char *msg = "3;eth0;100.100.100.2;255.255.255.0";
 	size_t msg_len = strlen(msg);
 		
 	reactor *r = 0;
