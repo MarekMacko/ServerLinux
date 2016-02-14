@@ -10,13 +10,13 @@ libstub:
 	$(CC) -g -fPIC ../src/os/os.c -shared -o libstub.so
 
 test:
-	$(CXX) -g -I../src -I../src/os  mocks/os_mock.cpp server_test.cpp \
+	$(CXX) -g -I../src -I../src/os   mocks/os_mock.cpp server_test.cpp \
 		../src/protocol.o ../src/acceptor_eh.o ../src/if_config.o \
 		../src/port_configurator.o ../src/client_eh.o ../src/reactor.o \
 		$(LD_FLAGS) -o server_test
 
 run:
-	./run.sh
+	sudo ./run.sh
 
 report:
 	mkdir html
@@ -29,3 +29,4 @@ clean:
 	rm -f cov.info
 	rm -rf html
 	rm -f *.gcno
+	rm -f *.gcda

@@ -25,6 +25,8 @@ static int handle_client_message(event_handler *self, struct message *m)
 		case SET_MAC:
 			result = set_mac(fd, m);	//wymagane odpalenie serwera z sudo
 			break;
+		default:
+			break;
 	}
 	delete_message(m);
 	return result;
