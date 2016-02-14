@@ -26,7 +26,7 @@ static char * get_ifs_all_names(void)
 
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");
-		exit(1);
+		return NULL;
 	}
 
 	family = ifaddr->ifa_addr->sa_family;
@@ -43,6 +43,7 @@ static char * get_ifs_all_names(void)
 			strcat(ifs_all_names, ifa->ifa_name);
 		}
 	}
+
 	freeifaddrs(ifaddr);
 	return ifs_all_names;
 }
@@ -128,7 +129,7 @@ static int send_ifs_mac(int fd, char *ifs_name)
 
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");
-		exit(1);
+		return -1;
 	}
 	
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
@@ -168,7 +169,7 @@ static int send_ifs_status(int fd, char *ifs_name)
 
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");
-		exit(1);
+		return -1;
 	}
 	
 	family = ifaddr->ifa_addr->sa_family;
@@ -205,7 +206,7 @@ static int send_ifs_ip(int fd, char *ifs_name, int family)
 
 	if (getifaddrs(&ifaddr) == -1){
 		perror("getifaddrs");
-		exit(1);
+		return -1;
 	}
 	
 	memset(out_buf, 0, sizeof(out_buf));
@@ -260,10 +261,8 @@ int send_ifs_info(int fd, struct message* m)
 {		
 	char *command = get_client_command(m->msg);
 	char *ifs_names = get_client_ifs_names(m->msg);
-	printf("names =\"%s\"\n", ifs_names);
-	printf("command =\"%s\"\n", command);
-
 	int result = -1;
+
 	if (ifs_names == NULL || command == NULL) {
 		return send_message(fd, 1, "Wrong format\n");
 	}

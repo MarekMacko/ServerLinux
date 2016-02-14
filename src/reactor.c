@@ -26,14 +26,15 @@ static void add_eh(reactor *self, event_handler *eh)
 {
     struct epoll_event ee;
     int fd = ((a_ctx*)eh->ctx)->fd; 
-
-    if(self->rc->current_idx < self->rc->max_cli) {
+    
+	if (self->rc->current_idx < self->rc->max_cli) {
 		memset(&ee, 0, sizeof(ee));
     	ee.events = EPOLLIN;
     	ee.data.fd = fd;
     	os_epoll_ctl(self->rc->epoll_fd, EPOLL_CTL_ADD, fd, &ee);
         printf("New event handler with fd=%d accepted\n", fd); 
-		if((self->rc->current_idx == 0) && (self->rc->ehs[0] == 0)) {
+	
+	if((self->rc->current_idx == 0) && (self->rc->ehs[0] == 0)) {
             self->rc->ehs[0] = eh;
 	    } else {
             self->rc->ehs[++(self->rc->current_idx)] = eh;

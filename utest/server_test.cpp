@@ -5,7 +5,6 @@ extern "C" {
 	#include "if_config.h"
 	#include "client_eh.h"
 	#include "reactor.h"
-	//#include "port_configurator.h"
 }
 
 #include "mocks/os_mock.h"
@@ -857,4 +856,3 @@ TEST(read_and_set, wrong_message_key)
 
 	ASSERT_TRUE(true);
 }
-

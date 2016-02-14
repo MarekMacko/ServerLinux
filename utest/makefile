@@ -1,5 +1,4 @@
 LD_FLAGS = -L. -Wl,--no-as-needed -ftest-coverage -lstub  -fprofile-arcs -ldl -lgtest -lgmock -lgmock_main -pthread -lgcov
-#
 	
 
 all: server libstub test
